@@ -12,46 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- นำเข้า Lucide Icons สำหรับไอคอนสวยๆ -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- นำเข้า SheetJS (xlsx.full.min.js) สำหรับประมวลผลไฟล์ Excel บนเว็บบราวเซอร์โดยตรง -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <!-- นำเข้า Firebase และ Firestore SDK เพื่อเชื่อมต่อคลาวด์ฐานข้อมูลฟรีอย่างปลอดภัย -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // กำหนดค่า Firebase Config เริ่มต้นสำหรับการบันทึกข้อมูล
-        // หมายเหตุ: สภาพแวดล้อมรันไทม์จะทำการแทรก config ของจริงเข้ามาให้โดยอัตโนมัติ
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "",
-            authDomain: "bba-student-verification.firebaseapp.com",
-            projectId: "bba-student-verification",
-            storageBucket: "bba-student-verification.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
-        };
-
-        // เริ่มต้นการใช้งาน Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bba-student-system';
-
-        // ส่งตัวแปรที่จำเป็นไปยัง Window เพื่อให้โค้ดส่วน HTML เรียกใช้งานได้ง่าย
-        window.db = db;
-        window.auth = auth;
-        window.appId = appId;
-        window.signInAnonymously = signInAnonymously;
-        window.onAuthStateChanged = onAuthStateChanged;
-        window.doc = doc;
-        window.getDoc = getDoc;
-        window.setDoc = setDoc;
-        window.collection = collection;
-        window.getDocs = getDocs;
-        window.writeBatch = writeBatch;
-    </script>
-
     <style>
         body {
             font-family: 'Sarabun', 'Inter', sans-serif;
@@ -80,12 +40,6 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-3 justify-center">
-                <!-- ปุ่มเปิดส่วนจัดการ Excel (Admin Panel Button) -->
-                <button onclick="handleAdminAccess()" class="bg-white/10 hover:bg-white/20 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-white font-medium border border-white/20">
-                    <i data-lucide="database" class="w-4 h-4"></i>
-                    <span id="btn-admin-panel">จัดการข้อมูล (Excel)</span>
-                </button>
-
                 <!-- ปุ่มสลับภาษา (Language Switcher) -->
                 <div class="flex bg-white/10 p-1 rounded-lg text-xs font-semibold">
                     <button onclick="setLanguage('th')" id="btn-lang-th" class="px-3 py-1 rounded transition-all bg-white text-bba-red shadow-sm">TH</button>
@@ -99,100 +53,6 @@
             </div>
         </div>
     </header>
-
-    <!-- หน้าต่างป๊อปอัพใส่รหัสผ่านผู้ดูแลระบบ (Admin Password Modal) - ซ่อนไว้เริ่มต้น -->
-    <div id="password-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-            <div class="flex items-center gap-3 text-bba-red mb-4">
-                <div class="bg-red-50 p-2.5 rounded-full">
-                    <i data-lucide="lock" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-slate-850 text-lg" id="modal-pwd-title">สิทธิ์สำหรับผู้ดูแลระบบ</h3>
-                    <p class="text-xs text-slate-500">กรุณาใส่รหัสผ่านเพื่อเข้าใช้งานคลาวด์</p>
-                </div>
-            </div>
-
-            <form onsubmit="verifyPassword(event)" class="space-y-4">
-                <div>
-                    <label for="admin-password" class="block text-xs font-semibold text-slate-600 mb-1.5">รหัสผ่านคลาวด์ (Cloud Password)</label>
-                    <input type="password" id="admin-password" placeholder="••••••••" 
-                        class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-red-400 outline-none transition-all text-base tracking-widest">
-                </div>
-                
-                <div id="pwd-error-msg" class="hidden text-xs text-red-600 flex items-center gap-1.5 bg-red-50 p-2 rounded-lg">
-                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-                    <span id="pwd-error-text">รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</span>
-                </div>
-
-                <div class="flex gap-2.5 mt-6">
-                    <button type="button" onclick="closePasswordModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 px-4 rounded-xl text-sm transition-all">
-                        ยกเลิก
-                    </button>
-                    <button type="submit" class="flex-1 bg-bba-red hover-bg-bba-red text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-all shadow-md">
-                        เข้าสู่ระบบ
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ส่วนจัดการอัปโหลด Excel (Admin Panel) - ซ่อนไว้เป็นค่าเริ่มต้น และปลดล็อกด้วยรหัสผ่านเท่านั้น -->
-    <div id="admin-panel" class="hidden bg-slate-800 text-white border-b border-slate-700 py-6 px-4 transition-all duration-300">
-        <div class="max-w-4xl mx-auto space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-750 pb-3">
-                <h3 class="font-bold flex items-center gap-2 text-base text-yellow-400">
-                    <i data-lucide="shield-alert"></i>
-                    <span id="admin-title">ระบบจัดเก็บคลาวด์คีย์ข้อมูล (Cloud Database Management)</span>
-                </h3>
-                <div class="flex items-center gap-3">
-                    <button onclick="logoutAdmin()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded text-slate-300 hover:text-white transition-all flex items-center gap-1 border border-slate-600">
-                        <i data-lucide="log-out" class="w-3 h-3"></i> ล็อกเอาท์
-                    </button>
-                    <button onclick="toggleAdminPanel(false)" class="text-slate-400 hover:text-white">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <p class="text-xs text-slate-300 leading-relaxed" id="admin-desc">
-                เมื่อผู้ดูแลอัปโหลดไฟล์ Excel (.xlsx, .xls) ข้อมูลทั้งหมดจะเข้าไปบันทึกบนระบบฐานข้อมูลคลาวด์ถาวรโดยอัตโนมัติ เพื่อให้นักศึกษาทุกคนตรวจสอบประวัติของตัวเองได้จากทุกที่ทุกเวลาบนเครือข่ายอินเทอร์เน็ต <br>
-                <strong>การจัดเรียงคอลัมน์ Excel:</strong> 
-                คอลัมน์ 1: เลขประชาชน/พาสปอร์ต | 
-                คอลัมน์ 2: รหัสนักศึกษา | 
-                <strong>คอลัมน์ 3:</strong> ชื่อ-นามสกุล | 
-                <strong>คอลัมน์ 4:</strong> วันเดือนปีเกิด
-            </p>
-
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-slate-900 p-4 rounded-xl border border-slate-700">
-                <div class="flex-grow">
-                    <label class="block text-xs text-slate-400 mb-1 font-semibold" id="lbl-select-file">เลือกไฟล์รายชื่อแบบเต็ม (.xlsx, .xls, .csv)</label>
-                    <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-yellow-500 file:text-slate-900 hover:file:bg-yellow-400 cursor-pointer">
-                </div>
-                <div class="flex items-end">
-                    <button onclick="processExcelToCloud()" id="btn-cloud-upload" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2.5 px-6 rounded-md transition-all flex items-center justify-center gap-2 shadow">
-                        <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-                        <span id="btn-upload-submit">อัปโหลดรายชื่อขึ้นระบบคลาวด์ถาวร</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- แสดงสถานะไฟล์ปัจจุบัน -->
-            <div class="text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center gap-2">
-                <div class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                    <span>สถานะฐานข้อมูลคลาวด์: <span id="txt-db-status" class="font-bold text-green-400">เชื่อมต่อคลาวด์สำเร็จ</span></span>
-                </div>
-                <span class="hidden sm:inline text-slate-600">|</span>
-                <span>จำนวนข้อมูลบนคลาวด์ทั้งหมด: <span id="txt-db-count" class="font-bold text-white">ตรวจเช็คจำนวน...</span></span>
-                
-                <button onclick="downloadSampleTemplate()" class="text-blue-400 hover:underline sm:ml-auto flex items-center gap-1 mt-2 sm:mt-0">
-                    <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
-                    <span id="txt-download-template">ดาวน์โหลดตัวอย่างเทมเพลต (.xlsx)</span>
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- เนื้อหาหลัก (Main Content) -->
     <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full">
@@ -232,7 +92,7 @@
                 <div id="input-thai-group" class="space-y-2">
                     <label for="id-card" class="block text-sm font-semibold text-slate-700" id="label-idcard">เลขประจำตัวประชาชน 13 หลัก</label>
                     <div class="relative">
-                        <input type="text" id="id-card" maxlength="13" placeholder="เช่น 1234567890123" 
+                        <input type="text" id="id-card" maxlength="13" placeholder="เช่น 1100600515106" 
                             class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-red-400 outline-none transition-all text-base tracking-widest"
                             oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         <i data-lucide="credit-card" class="absolute left-3.5 top-3.5 text-slate-400 w-5 h-5"></i>
@@ -252,9 +112,9 @@
                 </div>
 
                 <div class="mt-6">
-                    <button type="submit" id="btn-submit-search" class="w-full bg-bba-red hover-bg-bba-red text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-base" id="btn-search">
+                    <button type="submit" id="btn-submit-search" class="w-full bg-bba-red hover-bg-bba-red text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-base">
                         <i data-lucide="search" class="w-5 h-5"></i>
-                        ค้นหาข้อมูลส่วนตัว
+                        <span id="btn-search-text">ค้นหาข้อมูลส่วนตัว</span>
                     </button>
                 </div>
             </form>
@@ -266,15 +126,6 @@
             <div>
                 <h4 class="font-bold text-sm sm:text-base" id="error-title">ไม่พบข้อมูลในระบบ</h4>
                 <p id="error-text" class="text-xs sm:text-sm mt-0.5">กรุณาตรวจสอบเลขที่กรอกอีกครั้ง หรือติดต่อฝ่ายทะเบียน</p>
-            </div>
-        </div>
-
-        <!-- หน้าต่างแจ้งเตือนการจัดการระบบ (ซ่อนอยู่) -->
-        <div id="status-toast" class="hidden bg-green-50 border border-green-200 text-green-800 rounded-xl p-4 mb-6 flex gap-3 items-center">
-            <i data-lucide="info" class="w-6 h-6 text-green-600 shrink-0"></i>
-            <div>
-                <h4 class="font-bold text-sm sm:text-base" id="toast-title">ดำเนินการสำเร็จ</h4>
-                <p id="toast-text" class="text-xs sm:text-sm mt-0.5">ระบบได้ดำเนินการเรียบร้อยแล้ว</p>
             </div>
         </div>
 
@@ -360,23 +211,21 @@
 
     <!-- ส่วนของ JavaScript (ตัวควบคุมระบบทั้งหมด) -->
     <script>
-        // ----------------------------------------------------
-        // ระบบรหัสผ่านแอดมินสำหรับการเข้าถึงฐานข้อมูลคลาวด์
-        // ----------------------------------------------------
-        const ADMIN_SECRET_PASSWORD = "BBAAdmin2026"; // คุณสามารถแก้ไขรหัสผ่านได้ที่ตรงนี้เลยครับ!
-        let isAdminAuthenticated = false;            // ตรวจสอบสถานะการเข้าระบบแอดมิน
+        // =========================================================================
+        // ⚠️ ขั้นตอนสำคัญ: นำลิงก์ Web App URL ที่ได้จาก Google Apps Script มาวางแทนที่ตรงนี้ครับ ⚠️
+        // =========================================================================
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxoeePwk5bHSXGMgJOiI6wKvwokgOKkB4Dn_daROhsPaTPaVXEsqD95AZrEDhOw5qwwiQ/exec";
 
         // สถานะของแอพปัจจุบัน
         let currentLang = 'th';
         let currentType = 'thai';
-        let activeStudentData = null; // ตัวแปรเก็บข้อมูลนักเรียนที่ถูกค้นพบ
-        let isFirebaseLoaded = false;  // ตรวจสอบว่า Firebase โหลดเสร็จหรือยัง
+        let activeStudentData = null; 
 
-        // ระบบสลับเปลี่ยนภาษา (Dictionary for Language Switch)
+        // ระบบสลับภาษา (Dictionary for Language Switch)
         const i18n = {
             th: {
                 headerSub: "ระบบบริการข้อมูลนักศึกษาออนไลน์ | BBA Student Portal",
-                statusText: "ระบบออนไลน์พร้อมใช้งาน",
+                statusText: "เชื่อมต่อฐานข้อมูล Google Sheets สำเร็จ",
                 instructionTitle: "คำชี้แจงในการตรวจสอบข้อมูล",
                 instructionDesc: "กรุณากรอกเลขประจำตัวประชาชน 13 หลัก (สำหรับนักศึกษาสัญชาติไทย) หรือเลขที่หนังสือเดินทาง / Passport (สำหรับนักศึกษาต่างชาติ) เพื่อเข้าสู่ระบบตรวจสอบความถูกต้องของข้อมูลส่วนตัว หากพบข้อมูลไม่ถูกต้อง กรุณาติดต่อห้องทะเบียน BBA",
                 searchTitle: "ระบุตัวตนเพื่อตรวจสอบข้อมูล",
@@ -386,9 +235,9 @@
                 helpIdcard: "ใส่เฉพาะตัวเลข 13 หลักเท่านั้น ไม่ต้องเว้นวรรคหรือมีเครื่องหมายขีด (-)",
                 labelPassport: "เลขที่หนังสือเดินทาง (Passport Number)",
                 helpPassport: "กรอกรหัสตัวอักษรภาษาอังกฤษและตัวเลขตามปรากฏในพาสปอร์ต",
-                btnSearch: "ค้นหาข้อมูลส่วนตัว",
+                btnSearchText: "ค้นหาข้อมูลส่วนตัว",
+                btnSearchingText: "กำลังค้นหาข้อมูลใน Google Sheets...",
                 errorTitle: "ไม่พบข้อมูลในระบบ",
-                errorDefault: "กรุณาตรวจสอบเลขที่กรอกอีกครั้ง หรือติดต่อฝ่ายทะเบียน BBA",
                 resultTitle: "พบข้อมูลประวัตินักศึกษา",
                 resultSubtitle: "กรุณาตรวจสอบความถูกต้องของข้อมูลทุกช่องด้านล่าง",
                 secureText: "เชื่อมต่อปลอดภัย (SSL)",
@@ -401,13 +250,14 @@
                 footerPdpa: "ข้อมูลนี้เป็นข้อมูลส่วนบุคคลที่ได้รับการคุ้มครองตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)",
                 alertEmptyId: "กรุณากรอกเลขประจำตัวประชาชนให้ครบ 13 หลัก",
                 alertEmptyPassport: "กรุณากรอกเลขที่พาสสปอร์ตให้ถูกต้อง",
-                alertNotFound: "ไม่พบข้อมูลนักศึกษาในระบบคลาวด์ กรุณาตรวจสอบเลขที่กรอกใหม่อีกครั้ง หรือติดต่อฝ่ายทะเบียนหลักสูตร BBA",
+                alertNotFound: "ไม่พบข้อมูลนักศึกษาใน Google Sheets กรุณาตรวจสอบเลขที่กรอกใหม่อีกครั้ง หรือติดต่อฝ่ายทะเบียนหลักสูตร BBA",
                 saveSuccess: "บันทึกข้อมูลความถูกต้องสำเร็จ ขอบคุณสำหรับการตรวจสอบข้อมูลของคุณค่ะ/ครับ",
-                saveError: "ระบบได้รับข้อมูลเรียบร้อยแล้ว กรุณาติดต่อขอแก้ไขเอกสารที่สำนักงานหลักสูตร BBA ในเวลาราชการ"
+                saveError: "ระบบได้รับข้อมูลเรียบร้อยแล้ว กรุณาติดต่อขอแก้ไขเอกสารที่สำนักงานหลักสูตร BBA ในเวลาราชการ",
+                connectionError: "เกิดข้อผิดพลาดในการติดต่อฐานข้อมูล โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต"
             },
             en: {
                 headerSub: "BBA Online Student Information System",
-                statusText: "System Online & Ready",
+                statusText: "Connected to Google Sheets Database",
                 instructionTitle: "Instructions for Verification",
                 instructionDesc: "Please enter your 13-digit National ID card number (for Thai nationals) or Passport Number (for international students) to access and verify your personal information. If any information is incorrect, please contact the BBA office.",
                 searchTitle: "Identify Yourself to Verify Data",
@@ -417,9 +267,9 @@
                 helpIdcard: "Enter 13 numeric digits only, without spaces or hyphens (-)",
                 labelPassport: "Passport Number",
                 helpPassport: "Enter alphanumeric passport characters as shown in your passport",
-                btnSearch: "Search Profile",
+                btnSearchText: "Search Profile",
+                btnSearchingText: "Searching in Google Sheets...",
                 errorTitle: "No Record Found",
-                errorDefault: "Please double check your input number or contact the BBA Program Office.",
                 resultTitle: "Student Profile Found",
                 resultSubtitle: "Please carefully review the accuracy of your information below",
                 secureText: "Secure Connection (SSL)",
@@ -432,98 +282,16 @@
                 footerPdpa: "This personal data is strictly protected under the Personal Data Protection Act (PDPA)",
                 alertEmptyId: "Please enter your 13-digit Thai National ID.",
                 alertEmptyPassport: "Please enter a valid Passport Number.",
-                alertNotFound: "Student record not found in the cloud database. Please verify your identification number or contact the BBA office.",
+                alertNotFound: "Student record not found in Google Sheets. Please verify your identification number or contact the BBA office.",
                 saveSuccess: "Confirmation recorded successfully. Thank you for verifying your profile!",
-                saveError: "Request received. Please contact the BBA Program Office during office hours to submit correction forms."
+                saveError: "Request received. Please contact the BBA Program Office during office hours to submit correction forms.",
+                connectionError: "Failed to connect to database. Please check your internet connection."
             }
         };
 
-        // ฟังก์ชันเริ่มต้นรันเมื่อโหลดเสร็จ
-        async function initApp() {
+        // เริ่มรันระบบ
+        function initApp() {
             setLanguage('th');
-            
-            // รอให้ไลบรารี Firebase โหลดเสร็จเรียบร้อย (มีระบบ Retry 5 ครั้งแบบ Exponential Backoff)
-            let retries = 5;
-            let delay = 1000;
-            
-            const checkFirebase = async () => {
-                if (window.db && window.auth) {
-                    isFirebaseLoaded = true;
-                    try {
-                        // เข้าสู่ระบบแบบไร้ตัวตน (Anonymous Auth) ตามกฎความปลอดภัยข้อที่ 3 ก่อนดึงฐานข้อมูล
-                        await window.signInAnonymously(window.auth);
-                        getCloudCount(); // นับจำนวนข้อมูลปัจจุบัน
-                    } catch (e) {
-                        console.error("Firebase Auth Error: ", e);
-                    }
-                } else if (retries > 0) {
-                    retries--;
-                    setTimeout(checkFirebase, delay);
-                    delay *= 2; // เพิ่มเวลาดีเลย์ขึ้นทีละเท่าตัว
-                } else {
-                    showError("ไม่สามารถเชื่อมต่อระบบคลาวด์กลางของมหาวิทยาลัยได้ชั่วคราว กรุณาลองใหม่อีกครั้ง");
-                }
-            };
-            checkFirebase();
-        }
-
-        // นับจำนวนข้อมูลทั้งหมดบนคลาวด์เพื่อแจ้งให้ผู้ดูแลระบบทราบ
-        async function getCloudCount() {
-            if (!isFirebaseLoaded) return;
-            try {
-                // อ้างอิง Path ที่ปลอดภัยและถูกต้องตามกฎข้อที่ 1 เสมอ
-                const publicCol = window.collection(window.db, 'artifacts', window.appId, 'public', 'data', 'students');
-                const querySnapshot = await window.getDocs(publicCol);
-                document.getElementById('txt-db-count').innerText = querySnapshot.size;
-            } catch (error) {
-                console.error("Error reading count: ", error);
-            }
-        }
-
-        // ฟังก์ชันจัดการสิทธิ์การเข้าใช้งาน Admin
-        function handleAdminAccess() {
-            if (isAdminAuthenticated) {
-                toggleAdminPanel();
-            } else {
-                openPasswordModal();
-            }
-        }
-
-        function openPasswordModal() {
-            document.getElementById('password-modal').classList.remove('hidden');
-            document.getElementById('admin-password').focus();
-        }
-
-        function closePasswordModal() {
-            document.getElementById('password-modal').classList.add('hidden');
-            document.getElementById('admin-password').value = "";
-            document.getElementById('pwd-error-msg').classList.add('hidden');
-        }
-
-        // ฟังก์ชันตรวจสอบรหัสผ่าน
-        function verifyPassword(event) {
-            event.preventDefault();
-            const inputPwd = document.getElementById('admin-password').value;
-            const errorMsg = document.getElementById('pwd-error-msg');
-
-            if (inputPwd === ADMIN_SECRET_PASSWORD) {
-                isAdminAuthenticated = true;
-                closePasswordModal();
-                toggleAdminPanel(true);
-                showToast("ยินดีต้อนรับผู้ดูแลระบบ", "เข้าสู่ระบบการจัดการคลาวด์สำเร็จ");
-                getCloudCount();
-            } else {
-                errorMsg.classList.remove('hidden');
-                document.getElementById('admin-password').value = "";
-                document.getElementById('admin-password').focus();
-            }
-        }
-
-        // ล็อกเอาท์ผู้ดูแลระบบ
-        function logoutAdmin() {
-            isAdminAuthenticated = false;
-            toggleAdminPanel(false);
-            showToast("ออกจากระบบสำเร็จ", "ปิดสิทธิ์การเข้าถึงคีย์ข้อมูลระบบแล้ว");
         }
 
         // ฟังก์ชันสลับภาษา (ไทย/อังกฤษ)
@@ -563,7 +331,13 @@
             document.getElementById('label-passport').innerText = i18n[lang].labelPassport;
             document.getElementById('help-passport').innerText = i18n[lang].helpPassport;
             
-            document.getElementById('btn-submit-search').innerHTML = `<i data-lucide="search" class="w-5 h-5"></i> ${i18n[lang].btnSearch}`;
+            // อัปเดตข้อความที่ปุ่มค้นหา
+            const searchBtn = document.getElementById('btn-submit-search');
+            if (searchBtn.disabled) {
+                document.getElementById('btn-search-text').innerText = i18n[lang].btnSearchingText;
+            } else {
+                document.getElementById('btn-search-text').innerText = i18n[lang].btnSearchText;
+            }
 
             document.getElementById('error-title').innerText = i18n[lang].errorTitle;
             document.getElementById('result-title').innerText = i18n[lang].resultTitle;
@@ -586,21 +360,7 @@
             }
         }
 
-        // ฟังก์ชันเปิด-ปิด แผงควบคุมผู้ดูแลระบบ
-        function toggleAdminPanel(forceState) {
-            const adminPanel = document.getElementById('admin-panel');
-            if (forceState !== undefined) {
-                if (forceState) {
-                    adminPanel.classList.remove('hidden');
-                } else {
-                    adminPanel.classList.add('hidden');
-                }
-            } else {
-                adminPanel.classList.toggle('hidden');
-            }
-        }
-
-        // ฟังก์ชันสลับประเภทสัญชาติที่ค้นหา
+        // ฟังก์ชันสลับประเภทค้นหา
         function switchTab(type) {
             currentType = type;
             const tabThai = document.getElementById('tab-thai');
@@ -626,13 +386,13 @@
             lucide.createIcons();
         }
 
-        // ฟังก์ชันค้นหาข้อมูลสดๆ จากระบบคลาวด์ Firestore (ดึงผ่าน ID ปลอดภัยมาก)
+        // ฟังก์ชันค้นหาข้อมูลตรงจาก Google Sheets (ผ่าน Apps Script)
         async function handleSearch(event) {
             event.preventDefault();
             hideResult();
 
-            if (!isFirebaseLoaded) {
-                showError("ระบบคลาวด์ยังโหลดไม่เสร็จสิ้น กรุณารอ 2-3 วินาทีแล้วค้นหาใหม่อีกครั้ง");
+            if (GAS_WEB_APP_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE" || GAS_WEB_APP_URL === "") {
+                showError("⚠️ ผู้ดูแลระบบยังไม่ได้ติดตั้ง Google Apps Script Web App URL ในโค้ด");
                 return;
             }
 
@@ -651,21 +411,36 @@
                 }
             }
 
-            try {
-                // ค้นหาแบบตรงจุดจาก Document ID เพื่อลดค่าดาวน์โหลดคลาวด์และเพื่อความปลอดภัยสูงสุด (ไม่เปิดคิวรี่แบบฟลัด)
-                // ตามกฎข้อที่ 1: /artifacts/{appId}/public/data/{collectionName}/{docId}
-                const docRef = window.doc(window.db, 'artifacts', window.appId, 'public', 'data', 'students', queryValue);
-                const docSnap = await window.getDoc(docRef);
+            // แสดงสถานะกำลังค้นหาข้อมูล
+            const searchBtn = document.getElementById('btn-submit-search');
+            searchBtn.disabled = true;
+            document.getElementById('btn-search-text').innerText = i18n[currentLang].btnSearchingText;
 
-                if (docSnap.exists()) {
-                    activeStudentData = docSnap.data();
+            try {
+                // ส่งคำขอค้นหาไปยัง Google Apps Script (ดึงแบบปลอดภัย)
+                const fetchUrl = `${GAS_WEB_APP_URL}?studentIdCard=${encodeURIComponent(queryValue)}`;
+                const response = await fetch(fetchUrl);
+                
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    activeStudentData = result.data;
                     showResult(activeStudentData);
                 } else {
                     showError(i18n[currentLang].alertNotFound);
                 }
+
             } catch (error) {
-                console.error("Error searching student from Cloud: ", error);
-                showError("เกิดข้อผิดพลาดในการเชื่อมต่อคลาวด์ กรุณาลองใหม่อีกครั้ง");
+                console.error("Database connection error: ", error);
+                showError(i18n[currentLang].connectionError);
+            } finally {
+                // คืนสถานะปุ่มค้นหาเดิม
+                searchBtn.disabled = false;
+                document.getElementById('btn-search-text').innerText = i18n[currentLang].btnSearchText;
             }
         }
 
@@ -683,132 +458,10 @@
             resultCard.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // อัปโหลด Excel ตรงเข้าฐานข้อมูลคลาวด์ถาวรด้วย Batch Write (เร็วและมีประสิทธิภาพสูง)
-        function processExcelToCloud() {
-            if (!isAdminAuthenticated) {
-                alert("สิทธิ์ถูกปฏิเสธ: เฉพาะผู้ดูแลระบบคลาวด์เท่านั้นที่เข้าถึงการเขียนข้อมูลได้");
-                return;
-            }
-
-            const fileInput = document.getElementById('excel-file');
-            const file = fileInput.files[0];
-
-            if (!file) {
-                alert("กรุณาเลือกไฟล์ Excel หรือ CSV ของคุณก่อน");
-                return;
-            }
-
-            const btnUpload = document.getElementById('btn-cloud-upload');
-            const originalBtnText = btnUpload.innerHTML;
-            btnUpload.disabled = true;
-            btnUpload.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span> กำลังบันทึกข้อมูลเข้าสู่ระบบคลาวด์...`;
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                    
-                    if (rawRows.length <= 1) {
-                        alert("ไม่พบข้อมูลที่ถูกต้องในไฟล์ Excel");
-                        btnUpload.disabled = false;
-                        btnUpload.innerHTML = originalBtnText;
-                        return;
-                    }
-
-                    // ใช้ Batch Writes ของ Firebase ในการทยอยส่งข้อมูลทีละ 500 รายการพร้อมๆ กันอย่างปลอดภัยและรวดเร็ว
-                    let batch = window.writeBatch(window.db);
-                    let count = 0;
-                    let totalUploaded = 0;
-
-                    for (let i = 1; i < rawRows.length; i++) {
-                        const row = rawRows[i];
-                        if (!row || row.length === 0 || !row[0]) continue;
-
-                        const idValue = String(row[0]).trim();        
-                        const studentIdVal = String(row[1]).trim();   
-                        const fullnameVal = String(row[2]).trim();    
-                        const birthdateVal = String(row[3]).trim();   
-
-                        // ใช้ Path กฎข้อที่ 1 เสมอ: doc(db, 'artifacts', appId, 'public', 'data', 'students', idValue)
-                        const docRef = window.doc(window.db, 'artifacts', window.appId, 'public', 'data', 'students', idValue);
-                        
-                        batch.set(docRef, {
-                            id: idValue,
-                            studentId: studentIdVal,
-                            fullname: fullnameVal,
-                            birthdate: birthdateVal
-                        });
-
-                        count++;
-                        totalUploaded++;
-
-                        // หากครบ Batch สูงสุดของ Firebase (500 รายการ) ให้ส่งข้อมูลขึ้นรอบแรกแล้วเริ่ม Batch ใหม่
-                        if (count === 500) {
-                            await batch.commit();
-                            batch = window.writeBatch(window.db);
-                            count = 0;
-                        }
-                    }
-
-                    // ส่งข้อมูลที่เหลืออยู่
-                    if (count > 0) {
-                        await batch.commit();
-                    }
-
-                    // ดึงจำนวนล่าสุดมาแสดงบนหน้าแอดมิน
-                    getCloudCount();
-                    showToast("บันทึกคลาวด์ถาวรสำเร็จ!", `อัปโหลดประวัติข้อมูลนักศึกษารวมทั้งหมด ${totalUploaded} คนขึ้นสู่ฐานข้อมูลกลางเรียบร้อยแล้ว!`);
-                    fileInput.value = "";
-
-                } catch (error) {
-                    console.error("Cloud Upload Error: ", error);
-                    alert("เกิดข้อผิดพลาดในการส่งข้อมูลขึ้นคลาวด์: " + error.message);
-                } finally {
-                    btnUpload.disabled = false;
-                    btnUpload.innerHTML = originalBtnText;
-                }
-            };
-            
-            reader.readAsArrayBuffer(file);
-        }
-
-        // ฟังก์ชันดาวน์โหลดรูปแบบ Excel ตัวอย่าง
-        function downloadSampleTemplate() {
-            const headers = [
-                ["เลขประจำตัวประชาชนหรือพาสปอร์ต", "รหัสนักศึกษา", "ชื่อ-นามสกุล", "วันเดือนปีเกิด"],
-                ["1100600515106", "6902640017", "Apitchaya Fuangfoong", "11/May/2006"],
-                ["1149901028989", "6902640025", "Araya Aurairat", "07/February/2008"]
-            ];
-            
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(headers);
-            XLSX.utils.book_append_sheet(wb, ws, "Students Template");
-            XLSX.writeFile(wb, "bba_student_template.xlsx");
-        }
-
-        // แสดงแจ้งเตือนผลลัพธ์
-        function showToast(title, desc) {
-            const toast = document.getElementById('status-toast');
-            document.getElementById('toast-title').innerText = title;
-            document.getElementById('toast-text').innerText = desc;
-            
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 5000);
-            
-            toast.scrollIntoView({ behavior: 'smooth' });
-        }
-
         // บันทึกยืนยันความถูกต้องนักศึกษา
         function confirmData(isCorrect) {
             const confirmStatus = document.getElementById('confirm-status');
-            confirmStatus.classList.add('hidden');
+            confirmStatus.classList.remove('hidden');
 
             if (isCorrect) {
                 confirmStatus.className = "mt-4 text-center p-4 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200";

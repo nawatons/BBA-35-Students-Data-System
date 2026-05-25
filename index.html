@@ -360,6 +360,12 @@
 
     <!-- ส่วนของ JavaScript (ตัวควบคุมระบบทั้งหมด) -->
     <script>
+        // ----------------------------------------------------
+        // ระบบรหัสผ่านแอดมินสำหรับการเข้าถึงฐานข้อมูลคลาวด์
+        // ----------------------------------------------------
+        const ADMIN_SECRET_PASSWORD = "BBAAdmin2026"; // คุณสามารถแก้ไขรหัสผ่านได้ที่ตรงนี้เลยครับ!
+        let isAdminAuthenticated = false;            // ตรวจสอบสถานะการเข้าระบบแอดมิน
+
         // สถานะของแอพปัจจุบัน
         let currentLang = 'th';
         let currentType = 'thai';
@@ -802,7 +808,7 @@
         // บันทึกยืนยันความถูกต้องนักศึกษา
         function confirmData(isCorrect) {
             const confirmStatus = document.getElementById('confirm-status');
-            confirmStatus.classList.remove('hidden');
+            confirmStatus.classList.add('hidden');
 
             if (isCorrect) {
                 confirmStatus.className = "mt-4 text-center p-4 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200";

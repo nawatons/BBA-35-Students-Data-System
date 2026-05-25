@@ -14,6 +14,44 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- นำเข้า SheetJS (xlsx.full.min.js) สำหรับประมวลผลไฟล์ Excel บนเว็บบราวเซอร์โดยตรง -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- นำเข้า Firebase และ Firestore SDK เพื่อเชื่อมต่อคลาวด์ฐานข้อมูลฟรีอย่างปลอดภัย -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // กำหนดค่า Firebase Config เริ่มต้นสำหรับการบันทึกข้อมูล
+        // หมายเหตุ: สภาพแวดล้อมรันไทม์จะทำการแทรก config ของจริงเข้ามาให้โดยอัตโนมัติ
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "",
+            authDomain: "bba-student-verification.firebaseapp.com",
+            projectId: "bba-student-verification",
+            storageBucket: "bba-student-verification.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
+        };
+
+        // เริ่มต้นการใช้งาน Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bba-student-system';
+
+        // ส่งตัวแปรที่จำเป็นไปยัง Window เพื่อให้โค้ดส่วน HTML เรียกใช้งานได้ง่าย
+        window.db = db;
+        window.auth = auth;
+        window.appId = appId;
+        window.signInAnonymously = signInAnonymously;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.setDoc = setDoc;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.writeBatch = writeBatch;
+    </script>
+
     <style>
         body {
             font-family: 'Sarabun', 'Inter', sans-serif;
@@ -71,13 +109,13 @@
                 </div>
                 <div>
                     <h3 class="font-bold text-slate-850 text-lg" id="modal-pwd-title">สิทธิ์สำหรับผู้ดูแลระบบ</h3>
-                    <p class="text-xs text-slate-500">กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน</p>
+                    <p class="text-xs text-slate-500">กรุณาใส่รหัสผ่านเพื่อเข้าใช้งานคลาวด์</p>
                 </div>
             </div>
 
             <form onsubmit="verifyPassword(event)" class="space-y-4">
                 <div>
-                    <label for="admin-password" class="block text-xs font-semibold text-slate-600 mb-1.5">รหัสผ่าน (Password)</label>
+                    <label for="admin-password" class="block text-xs font-semibold text-slate-600 mb-1.5">รหัสผ่านคลาวด์ (Cloud Password)</label>
                     <input type="password" id="admin-password" placeholder="••••••••" 
                         class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-red-400 outline-none transition-all text-base tracking-widest">
                 </div>
@@ -105,12 +143,9 @@
             <div class="flex items-center justify-between border-b border-slate-750 pb-3">
                 <h3 class="font-bold flex items-center gap-2 text-base text-yellow-400">
                     <i data-lucide="shield-alert"></i>
-                    <span id="admin-title">แผงจัดการข้อมูลสำหรับผู้ดูแลระบบ (Admin Database Management)</span>
+                    <span id="admin-title">ระบบจัดเก็บคลาวด์คีย์ข้อมูล (Cloud Database Management)</span>
                 </h3>
                 <div class="flex items-center gap-3">
-                    <button onclick="resetDatabase()" class="text-xs bg-red-600 hover:bg-red-750 px-2.5 py-1 rounded text-white font-semibold transition-all flex items-center gap-1 shadow-sm">
-                        <i data-lucide="rotate-ccw" class="w-3 h-3"></i> รีเซ็ตเป็นค่าเริ่มต้น
-                    </button>
                     <button onclick="logoutAdmin()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded text-slate-300 hover:text-white transition-all flex items-center gap-1 border border-slate-600">
                         <i data-lucide="log-out" class="w-3 h-3"></i> ล็อกเอาท์
                     </button>
@@ -121,22 +156,23 @@
             </div>
             
             <p class="text-xs text-slate-300 leading-relaxed" id="admin-desc">
-                คุณสามารถอัปโหลดไฟล์ Excel (.xlsx, .xls) เพื่ออัปเดตรายชื่อนักศึกษาในระบบได้ทันที ข้อมูลจะถูกบันทึกไว้ในเบราว์เซอร์นี้ถาวร โดยจัดเรียงคอลัมน์ดังนี้: <br>
-                <strong>คอลัมน์ 1:</strong> เลขประจำตัวประชาชน/พาสปอร์ต | 
-                <strong>คอลัมน์ 2:</strong> รหัสประจำตัวนักศึกษา | 
+                เมื่อผู้ดูแลอัปโหลดไฟล์ Excel (.xlsx, .xls) ข้อมูลทั้งหมดจะเข้าไปบันทึกบนระบบฐานข้อมูลคลาวด์ถาวรโดยอัตโนมัติ เพื่อให้นักศึกษาทุกคนตรวจสอบประวัติของตัวเองได้จากทุกที่ทุกเวลาบนเครือข่ายอินเทอร์เน็ต <br>
+                <strong>การจัดเรียงคอลัมน์ Excel:</strong> 
+                คอลัมน์ 1: เลขประชาชน/พาสปอร์ต | 
+                คอลัมน์ 2: รหัสนักศึกษา | 
                 <strong>คอลัมน์ 3:</strong> ชื่อ-นามสกุล | 
                 <strong>คอลัมน์ 4:</strong> วันเดือนปีเกิด
             </p>
 
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-slate-900 p-4 rounded-xl border border-slate-700">
                 <div class="flex-grow">
-                    <label class="block text-xs text-slate-400 mb-1 font-semibold" id="lbl-select-file">เลือกไฟล์ Excel (.xlsx, .xls, .csv)</label>
+                    <label class="block text-xs text-slate-400 mb-1 font-semibold" id="lbl-select-file">เลือกไฟล์รายชื่อแบบเต็ม (.xlsx, .xls, .csv)</label>
                     <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-yellow-500 file:text-slate-900 hover:file:bg-yellow-400 cursor-pointer">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="processExcel()" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2.5 px-6 rounded-md transition-all flex items-center justify-center gap-2 shadow">
+                    <button onclick="processExcelToCloud()" id="btn-cloud-upload" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2.5 px-6 rounded-md transition-all flex items-center justify-center gap-2 shadow">
                         <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-                        <span id="btn-upload-submit">นำเข้าข้อมูลจากไฟล์</span>
+                        <span id="btn-upload-submit">อัปโหลดรายชื่อขึ้นระบบคลาวด์ถาวร</span>
                     </button>
                 </div>
             </div>
@@ -144,15 +180,15 @@
             <!-- แสดงสถานะไฟล์ปัจจุบัน -->
             <div class="text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center gap-2">
                 <div class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 bg-green-400 rounded-full"></span>
-                    <span>สถานะข้อมูล: <span id="txt-db-status" class="font-bold text-yellow-400">กำลังโหลด...</span></span>
+                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    <span>สถานะฐานข้อมูลคลาวด์: <span id="txt-db-status" class="font-bold text-green-400">เชื่อมต่อคลาวด์สำเร็จ</span></span>
                 </div>
                 <span class="hidden sm:inline text-slate-600">|</span>
-                <span>จำนวนข้อมูล: <span id="txt-db-count" class="font-bold text-white">0</span> รายการในระบบขณะนี้</span>
+                <span>จำนวนข้อมูลบนคลาวด์ทั้งหมด: <span id="txt-db-count" class="font-bold text-white">ตรวจเช็คจำนวน...</span></span>
                 
                 <button onclick="downloadSampleTemplate()" class="text-blue-400 hover:underline sm:ml-auto flex items-center gap-1 mt-2 sm:mt-0">
                     <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
-                    <span id="txt-download-template">ดาวน์โหลดไฟล์เทมเพลตตัวอย่าง (.xlsx)</span>
+                    <span id="txt-download-template">ดาวน์โหลดตัวอย่างเทมเพลต (.xlsx)</span>
                 </button>
             </div>
         </div>
@@ -216,7 +252,7 @@
                 </div>
 
                 <div class="mt-6">
-                    <button type="submit" class="w-full bg-bba-red hover-bg-bba-red text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-base" id="btn-search">
+                    <button type="submit" id="btn-submit-search" class="w-full bg-bba-red hover-bg-bba-red text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-base" id="btn-search">
                         <i data-lucide="search" class="w-5 h-5"></i>
                         ค้นหาข้อมูลส่วนตัว
                     </button>
@@ -324,124 +360,11 @@
 
     <!-- ส่วนของ JavaScript (ตัวควบคุมระบบทั้งหมด) -->
     <script>
-        // ----------------------------------------------------
-        // ส่วนข้อมูลรหัสผ่านและการเข้าสู่ระบบ Admin 
-        // ----------------------------------------------------
-        const ADMIN_SECRET_PASSWORD = "BBAAdmin2026"; // สามารถแก้ไขรหัสผ่านได้ที่ตรงนี้เลยครับ!
-        let isAdminAuthenticated = false;            // ตรวจสอบสถานะการล็อกอินแอดมิน
-
-        // ----------------------------------------------------
-        // ส่วนรายชื่อนักศึกษาทั้งหมดจากไฟล์ bba_student_template.xlsx ของคุณ
-        // นำเข้าฐานข้อมูลครบถ้วนทั้งหมดกว่า 200 รายชื่อให้บันทึกถาวรทันที
-        // ----------------------------------------------------
-        const defaultStudentDatabase = [
-            { id: "1100600515106", studentId: "6902640017", fullname: "Apitchaya Fuangfoong", birthdate: "11/May/2006" },
-            { id: "1149901028989", studentId: "6902640025", fullname: "Araya Aurairat", birthdate: "07/February/2008" },
-            { id: "1102003920185", studentId: "6902640033", fullname: "Arisa Micaela Hieronimi", birthdate: "29/November/2007" },
-            { id: "1103704054493", studentId: "6902640041", fullname: "Arisara Tanikchalisa", birthdate: "04/January/2006" },
-            { id: "1103400146151", studentId: "6902640058", fullname: "Ariyapol Deelert", birthdate: "30/March/2008" },
-            { id: "1409903527033", studentId: "6902640066", fullname: "Arnon Pothinam", birthdate: "29/August/2006" },
-            { id: "1101700438228", studentId: "6902640074", fullname: "Ashira Jangkompee", birthdate: "30/October/2007" },
-            { id: "1101700437698", studentId: "6902640082", fullname: "Aumi Charoenphol", birthdate: "24/October/2007" },
-            { id: "1100801604505", studentId: "6902640090", fullname: "Bhuree Ngamkum", birthdate: "21/February/2008" },
-            { id: "1100704026629", studentId: "6902640108", fullname: "Bhutawan Jiarakul", birthdate: "07/October/2007" },
-            { id: "1100201646274", studentId: "6902640116", fullname: "Boonyavee Jungsawat", birthdate: "29/October/2007" },
-            { id: "1103704020041", studentId: "6902640124", fullname: "Bunyaporn Amattayakul", birthdate: "02/August/2007" },
-            { id: "1101801265219", studentId: "6902640132", fullname: "Chadaporn Charoenpipat", birthdate: "03/November/2007" },
-            { id: "1104300135891", studentId: "6902640140", fullname: "Chadin Chatchawalsakoon", birthdate: "14/August/2007" },
-            { id: "1102003889156", studentId: "6902640157", fullname: "Chaiyanant Techapongthorn", birthdate: "06/November/2007" },
-            { id: "1100703901976", studentId: "6902640165", fullname: "Chakrin Lertbannaphong", birthdate: "26/April/2007" },
-            { id: "1104200196238", studentId: "6902640173", fullname: "Chanakan Prachongkit", birthdate: "13/January/2007" },
-            { id: "1100703816693", studentId: "6902640181", fullname: "Chanakarn Jearrakul", birthdate: "07/February/2007" },
-            { id: "1101402364022", studentId: "6902640199", fullname: "Chananya Chaiareejit", birthdate: "06/December/2007" },
-            { id: "1102003926591", studentId: "6902640207", fullname: "Chanapa Srisajjalertvaja", birthdate: "18/December/2007" },
-            { id: "1101850123491", studentId: "6902640215", fullname: "Chanasorn Tangbunsiri", birthdate: "20/March/2008" },
-            { id: "1100703960115", studentId: "6902640223", fullname: "Chanatda Jirachaianant", birthdate: "10/September/2007" },
-            { id: "1100703903821", studentId: "6902640231", fullname: "Chanidapa Lertbannaphong", birthdate: "26/April/2007" },
-            { id: "1102003914801", studentId: "6902640249", fullname: "Chanikarn Ngampisutasin", birthdate: "04/October/2007" },
-            { id: "1100201683498", studentId: "6902640256", fullname: "Chanya Techasupaphol", birthdate: "16/February/2008" },
-            { id: "1103704044196", studentId: "6902640264", fullname: "Chanyapat Suttiponpaiboon", birthdate: "21/January/2007" },
-            { id: "1100703932782", studentId: "6902640272", fullname: "Charis Sirisrisak", birthdate: "17/June/2007" },
-            { id: "1100704021112", studentId: "6902640280", fullname: "Charuda Leelacharoenpon", birthdate: "01/October/2007" },
-            { id: "1101402263498", studentId: "6902640298", fullname: "Chatchanok Sribanditmongkol", birthdate: "26/November/2006" },
-            { id: "1100201710924", studentId: "6902640306", fullname: "Chatdanai Chaikosol", birthdate: "23/May/2008" },
-            { id: "1100501700445", studentId: "6902640314", fullname: "Chawakorn Jitsatjapong", birthdate: "22/October/2007" },
-            { id: "1102003875325", studentId: "6902640322", fullname: "Chawanwit Wajarasathian", birthdate: "12/August/2007" },
-            { id: "1103704071193", studentId: "6902640330", fullname: "Chayada Supawaddhanasiri", birthdate: "06/March/2008" },
-            { id: "1104500094183", studentId: "6902640348", fullname: "Chayapa Wangthammarat", birthdate: "04/March/2008" },
-            { id: "1102003859664", studentId: "6902640355", fullname: "Chayapol Sritula", birthdate: "24/June/2007" },
-            { id: "1103704071151", studentId: "6902640363", fullname: "Chayisara Supawaddhanasiri", birthdate: "06/March/2008" },
-            { id: "1100703957599", studentId: "6902640371", fullname: "Chayut Kittisiriprasert", birthdate: "31/August/2007" },
-            { id: "1100801648022", studentId: "6902640389", fullname: "Chollada Wangcharoensab", birthdate: "29/March/2008" },
-            { id: "1100201658493", studentId: "6902640397", fullname: "Chonlakarn Srirattanabunchai", birthdate: "14/December/2007" },
-            { id: "1103704018895", studentId: "6902640405", fullname: "Gavin Girdwichai", reference: "BBA", birthdate: "13/August/2007" },
-            { id: "1102003923397", studentId: "6902640413", fullname: "Irada Phunoi", birthdate: "10/December/2007" },
-            { id: "1103100155091", studentId: "6902640421", fullname: "Itthipat Isorapakde", birthdate: "24/August/2007" },
-            { id: "1103704047497", studentId: "6902640439", fullname: "Janyaporn Tangbunsiri", birthdate: "28/May/2007" },
-            { id: "1101801262333", studentId: "6902640447", fullname: "Jasada Tansuphasiri", birthdate: "24/October/2007" },
-            { id: "1100703814496", studentId: "6902640454", fullname: "Jidapa Srisajjalertvaja", birthdate: "25/January/2007" },
-            { id: "1102003889185", studentId: "6902640462", fullname: "Jinnapat Techapongthorn", birthdate: "06/November/2007" },
-            { id: "1100201683451", studentId: "6902640470", fullname: "Jirayu Techasupaphol", birthdate: "16/February/2008" },
-            { id: "1103704044151", studentId: "6902640488", fullname: "Jongrak Suttiponpaiboon", birthdate: "21/January/2007" },
-            { id: "1101402364051", studentId: "6902640496", fullname: "Kamonporn Chaiareejit", birthdate: "06/December/2007" },
-            { id: "1100703901925", studentId: "6902640504", fullname: "Kamontip Lertbannaphong", birthdate: "26/April/2007" },
-            { id: "1102003859611", studentId: "6902640512", fullname: "Kamonwan Sritula", birthdate: "24/June/2007" },
-            { id: "1100703960151", studentId: "6902640520", fullname: "Kanchaporn Jirachaianant", birthdate: "10/September/2007" },
-            { id: "1103704071111", studentId: "6902640538", fullname: "Kanyapak Supawaddhanasiri", birthdate: "06/March/2008" },
-            { id: "1101402312511", studentId: "6902640546", fullname: "Kanyasorn Thuniljinda", birthdate: "17/July/2005" },
-            { id: "1103704047411", studentId: "6902640553", fullname: "Kanyatara Tangbunsiri", birthdate: "28/May/2007" },
-            { id: "1101850123411", studentId: "6902640561", fullname: "Kanyanat Tangbunsiri", birthdate: "20/March/2008" },
-            { id: "1100704021151", studentId: "6902640579", fullname: "Kanyaporn Leelacharoenpon", birthdate: "01/October/2007" },
-            { id: "1102003889111", studentId: "6902640587", fullname: "Kanyara Techapongthorn", birthdate: "06/November/2007" },
-            { id: "1100703903851", studentId: "6902640595", fullname: "Kanyarat Lertbannaphong", birthdate: "26/April/2007" },
-            { id: "1102003914811", studentId: "6902640603", fullname: "Kanyasiri Ngampisutasin", birthdate: "04/October/2007" },
-            { id: "1102003926511", studentId: "6902640611", fullname: "Kanyatara Srisajjalertvaja", birthdate: "18/December/2007" },
-            { id: "1100703814411", studentId: "6902640629", fullname: "Kanyarat Srisajjalertvaja", birthdate: "25/January/2007" },
-            { id: "1101402263411", studentId: "6902640637", fullname: "Kanyada Sribanditmongkol", birthdate: "26/November/2006" },
-            { id: "1100501700411", studentId: "6902640645", fullname: "Kanyapak Jitsatjapong", birthdate: "22/October/2007" },
-            { id: "1102003875311", studentId: "6902640652", fullname: "Kanyaphon Wajarasathian", birthdate: "12/August/2007" },
-            { id: "1104500094111", studentId: "6902640660", fullname: "Kanyapas Wangthammarat", birthdate: "04/March/2008" },
-            { id: "1100703957511", studentId: "6902640678", fullname: "Kanyawat Kittisiriprasert", birthdate: "31/August/2007" },
-            { id: "1100801648011", studentId: "6902640686", fullname: "Kanyaphon Wangcharoensab", birthdate: "29/March/2008" },
-            { id: "1100201658411", studentId: "6902640694", fullname: "Kanyaluck Srirattanabunchai", birthdate: "14/December/2007" },
-            { id: "1100703932711", studentId: "6902640702", fullname: "Kanyaphat Sirisrisak", birthdate: "17/June/2007" },
-            { id: "1103704018811", studentId: "6902640710", fullname: "Kanyaporn Girdwichai", birthdate: "13/August/2007" },
-            { id: "1102003923311", studentId: "6902640728", fullname: "Kanyanat Phunoi", birthdate: "10/December/2007" },
-            { id: "1103100155011", studentId: "6902640736", fullname: "Kanyasorn Isorapakde", birthdate: "24/August/2007" },
-            { id: "1101801262311", studentId: "6902640744", fullname: "Kanyapak Tansuphasiri", birthdate: "24/October/2007" },
-            { id: "1101801265211", studentId: "6902640751", fullname: "Kanyawat Charoenpipat", birthdate: "03/November/2007" },
-            { id: "1104300135811", studentId: "6902640769", fullname: "Kanyaphon Chatchawalsakoon", birthdate: "14/August/2007" },
-            { id: "1104200196211", studentId: "6902640777", fullname: "Kanyapak Prachongkit", birthdate: "13/January/2007" },
-            { id: "1100703816611", studentId: "6902640785", fullname: "Kanyawan Jearrakul", birthdate: "07/February/2007" },
-            { id: "1100201710911", studentId: "6902640793", fullname: "Kanyapas Chaikosol", birthdate: "23/May/2008" },
-            { id: "1100201646211", studentId: "6902640801", fullname: "Kanyaluck Jungsawat", birthdate: "29/October/2007" },
-            { id: "1103704020011", studentId: "6902640819", fullname: "Kanyaporn Amattayakul", birthdate: "02/August/2007" },
-            { id: "1100600515111", studentId: "6902640827", fullname: "Kanyawat Fuangfoong", birthdate: "11/May/2006" },
-            { id: "1149901028911", studentId: "6902640835", fullname: "Kanyasorn Aurairat", birthdate: "07/February/2008" },
-            { id: "1102003920111", studentId: "6902640843", fullname: "Kanyapak Hieronimi", birthdate: "29/November/2007" },
-            { id: "1103704054411", studentId: "6902640850", fullname: "Kanyanat Tanikchalisa", birthdate: "04/January/2006" },
-            { id: "1103400146111", studentId: "6902640868", fullname: "Kanyaphat Deelert", birthdate: "30/March/2008" },
-            { id: "1409903527011", studentId: "6902640876", fullname: "Kanyapak Pothinam", birthdate: "29/August/2006" },
-            { id: "1101700438211", studentId: "6902640884", fullname: "Kanyanat Jangkompee", birthdate: "30/October/2007" },
-            { id: "1101700437611", studentId: "6902640892", fullname: "Kanyawan Charoenphol", birthdate: "24/October/2007" },
-            { id: "1100801604511", studentId: "6902640900", fullname: "Kanyaporn Ngamkum", birthdate: "21/February/2008" },
-            { id: "1100704026611", studentId: "6902640918", fullname: "Kanyasorn Jiarakul", birthdate: "07/October/2007" },
-            { id: "1100401406911", studentId: "6902640926", fullname: "Kanyapak Chettanacharoenchai", birthdate: "06/January/2008" },
-            { id: "1102400216311", studentId: "6902640934", fullname: "Kanyasorn Pimprapoat", birthdate: "21/May/2008" },
-            { id: "1103900234011", studentId: "6902640942", fullname: "Kanyatara Sodsrisuwan", birthdate: "09/May/2007" },
-            { id: "1102003802511", studentId: "6902640959", fullname: "Kanyanat Kasemveerasant", birthdate: "06/September/2006" },
-            { id: "1849901797561", studentId: "6902642062", fullname: "Tikamon Thammarat", birthdate: "22/January/2006" },
-            { id: "1101402342541", studentId: "6902642070", fullname: "Tipwarintorn Luangphituck", birthdate: "01/October/2006" },
-            { id: "1102200257781", studentId: "6902642088", fullname: "Touchtam Kusoltech", birthdate: "02/September/2007" },
-            { id: "1100401406927", studentId: "6902642096", fullname: "Vachirawin Chettanacharoenchai", birthdate: "06/January/2008" },
-            { id: "1102400216387", studentId: "6902642104", fullname: "Varatchaya Pimprapoat", birthdate: "21/May/2008" },
-            { id: "1103900234032", studentId: "6902642112", fullname: "Veeravit Sodsrisuwan", birthdate: "09/May/2007" },
-            { id: "1101402312595", studentId: "6902642120", fullname: "Vintikiat Thuniljinda", birthdate: "17/July/2005" },
-            { id: "1102003802573", studentId: "6902642138", fullname: "Voradaras Kasemveerasant", birthdate: "06/September/2006" }
-        ];
-
-        // ตัวแปรหลักที่จะเก็บฐานข้อมูลปัจจุบัน
-        let studentDatabase = [];
+        // สถานะของแอพปัจจุบัน
+        let currentLang = 'th';
+        let currentType = 'thai';
+        let activeStudentData = null; // ตัวแปรเก็บข้อมูลนักเรียนที่ถูกค้นพบ
+        let isFirebaseLoaded = false;  // ตรวจสอบว่า Firebase โหลดเสร็จหรือยัง
 
         // ระบบสลับเปลี่ยนภาษา (Dictionary for Language Switch)
         const i18n = {
@@ -472,7 +395,7 @@
                 footerPdpa: "ข้อมูลนี้เป็นข้อมูลส่วนบุคคลที่ได้รับการคุ้มครองตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)",
                 alertEmptyId: "กรุณากรอกเลขประจำตัวประชาชนให้ครบ 13 หลัก",
                 alertEmptyPassport: "กรุณากรอกเลขที่พาสสปอร์ตให้ถูกต้อง",
-                alertNotFound: "ไม่พบข้อมูลนักศึกษาในระบบ กรุณาตรวจสอบเลขที่กรอกใหม่อีกครั้ง หรือติดต่อฝ่ายทะเบียนหลักสูตร BBA",
+                alertNotFound: "ไม่พบข้อมูลนักศึกษาในระบบคลาวด์ กรุณาตรวจสอบเลขที่กรอกใหม่อีกครั้ง หรือติดต่อฝ่ายทะเบียนหลักสูตร BBA",
                 saveSuccess: "บันทึกข้อมูลความถูกต้องสำเร็จ ขอบคุณสำหรับการตรวจสอบข้อมูลของคุณค่ะ/ครับ",
                 saveError: "ระบบได้รับข้อมูลเรียบร้อยแล้ว กรุณาติดต่อขอแก้ไขเอกสารที่สำนักงานหลักสูตร BBA ในเวลาราชการ"
             },
@@ -503,46 +426,51 @@
                 footerPdpa: "This personal data is strictly protected under the Personal Data Protection Act (PDPA)",
                 alertEmptyId: "Please enter your 13-digit Thai National ID.",
                 alertEmptyPassport: "Please enter a valid Passport Number.",
-                alertNotFound: "Student record not found. Please verify your identification number or contact the BBA office.",
+                alertNotFound: "Student record not found in the cloud database. Please verify your identification number or contact the BBA office.",
                 saveSuccess: "Confirmation recorded successfully. Thank you for verifying your profile!",
                 saveError: "Request received. Please contact the BBA Program Office during office hours to submit correction forms."
             }
         };
 
-        // สถานะของแอพปัจจุบัน
-        let currentLang = 'th';
-        let currentType = 'thai';
-        let activeStudentData = null; // ตัวแปรเก็บข้อมูลนักเรียนที่ถูกค้นพบ
-
-        // ฟังก์ชันเริ่มต้นที่จะทำงานทันทีที่เปิดหน้าเว็บ
-        function initApp() {
-            loadDatabase();
+        // ฟังก์ชันเริ่มต้นรันเมื่อโหลดเสร็จ
+        async function initApp() {
             setLanguage('th');
-        }
-
-        // ฟังก์ชันโหลดรายชื่อนักศึกษาจาก LocalStorage (จดจำข้อมูลถาวร)
-        function loadDatabase() {
-            const savedDb = localStorage.getItem('bba_student_db');
-            const statusEl = document.getElementById('txt-db-status');
             
-            if (savedDb) {
-                studentDatabase = JSON.parse(savedDb);
-                statusEl.innerText = "ใช้งานไฟล์ส่วนตัว (Personal Uploaded File)";
-                statusEl.className = "font-bold text-green-400";
-            } else {
-                studentDatabase = defaultStudentDatabase;
-                statusEl.innerText = "ใช้งานไฟล์ถาวรในระบบ (Permanent System Data)";
-                statusEl.className = "font-bold text-emerald-400";
-            }
-            document.getElementById('txt-db-count').innerText = studentDatabase.length;
+            // รอให้ไลบรารี Firebase โหลดเสร็จเรียบร้อย (มีระบบ Retry 5 ครั้งแบบ Exponential Backoff)
+            let retries = 5;
+            let delay = 1000;
+            
+            const checkFirebase = async () => {
+                if (window.db && window.auth) {
+                    isFirebaseLoaded = true;
+                    try {
+                        // เข้าสู่ระบบแบบไร้ตัวตน (Anonymous Auth) ตามกฎความปลอดภัยข้อที่ 3 ก่อนดึงฐานข้อมูล
+                        await window.signInAnonymously(window.auth);
+                        getCloudCount(); // นับจำนวนข้อมูลปัจจุบัน
+                    } catch (e) {
+                        console.error("Firebase Auth Error: ", e);
+                    }
+                } else if (retries > 0) {
+                    retries--;
+                    setTimeout(checkFirebase, delay);
+                    delay *= 2; // เพิ่มเวลาดีเลย์ขึ้นทีละเท่าตัว
+                } else {
+                    showError("ไม่สามารถเชื่อมต่อระบบคลาวด์กลางของมหาวิทยาลัยได้ชั่วคราว กรุณาลองใหม่อีกครั้ง");
+                }
+            };
+            checkFirebase();
         }
 
-        // ฟังก์ชันรีเซ็ตระบบฐานข้อมูลกลับเป็นตัวเริ่มต้น
-        function resetDatabase() {
-            if (confirm("คุณต้องการล้างข้อมูลนักเรียนที่เคยอัปโหลด และกลับไปใช้ข้อมูลถาวรเริ่มต้นใช่หรือไม่?")) {
-                localStorage.removeItem('bba_student_db');
-                loadDatabase();
-                showToast("รีเซ็ตระบบเรียบร้อย", "ระบบกลับมาใช้งานรายชื่อนักศึกษาถาวรเรียบร้อยแล้ว");
+        // นับจำนวนข้อมูลทั้งหมดบนคลาวด์เพื่อแจ้งให้ผู้ดูแลระบบทราบ
+        async function getCloudCount() {
+            if (!isFirebaseLoaded) return;
+            try {
+                // อ้างอิง Path ที่ปลอดภัยและถูกต้องตามกฎข้อที่ 1 เสมอ
+                const publicCol = window.collection(window.db, 'artifacts', window.appId, 'public', 'data', 'students');
+                const querySnapshot = await window.getDocs(publicCol);
+                document.getElementById('txt-db-count').innerText = querySnapshot.size;
+            } catch (error) {
+                console.error("Error reading count: ", error);
             }
         }
 
@@ -576,7 +504,8 @@
                 isAdminAuthenticated = true;
                 closePasswordModal();
                 toggleAdminPanel(true);
-                showToast("ยินดีต้อนรับผู้ดูแลระบบ", "เข้าสู่ระบบการจัดการฐานข้อมูลสำเร็จ");
+                showToast("ยินดีต้อนรับผู้ดูแลระบบ", "เข้าสู่ระบบการจัดการคลาวด์สำเร็จ");
+                getCloudCount();
             } else {
                 errorMsg.classList.remove('hidden');
                 document.getElementById('admin-password').value = "";
@@ -588,13 +517,12 @@
         function logoutAdmin() {
             isAdminAuthenticated = false;
             toggleAdminPanel(false);
-            showToast("ออกจากระบบสำเร็จ", "ปิดสิทธิ์การเข้าถึงระบบควบคุมเรียบร้อย");
+            showToast("ออกจากระบบสำเร็จ", "ปิดสิทธิ์การเข้าถึงคีย์ข้อมูลระบบแล้ว");
         }
 
-        // ฟังก์ชันในการสลับภาษา (ไทย/อังกฤษ)
+        // ฟังก์ชันสลับภาษา (ไทย/อังกฤษ)
         function setLanguage(lang) {
             currentLang = lang;
-            
             const btnTh = document.getElementById('btn-lang-th');
             const btnEn = document.getElementById('btn-lang-en');
             
@@ -606,7 +534,6 @@
                 btnTh.className = "px-3 py-1 rounded transition-all text-white hover:bg-white/10";
             }
 
-            // อัปเดตภาษาของส่วนประกอบต่างๆ ทั่วเว็บ
             document.getElementById('header-sub').innerText = i18n[lang].headerSub;
             document.getElementById('status-text').innerText = i18n[lang].statusText;
             document.getElementById('instruction-title').innerText = i18n[lang].instructionTitle;
@@ -630,7 +557,7 @@
             document.getElementById('label-passport').innerText = i18n[lang].labelPassport;
             document.getElementById('help-passport').innerText = i18n[lang].helpPassport;
             
-            document.getElementById('btn-search').innerHTML = `<i data-lucide="search" class="w-5 h-5"></i> ${i18n[lang].btnSearch}`;
+            document.getElementById('btn-submit-search').innerHTML = `<i data-lucide="search" class="w-5 h-5"></i> ${i18n[lang].btnSearch}`;
 
             document.getElementById('error-title').innerText = i18n[lang].errorTitle;
             document.getElementById('result-title').innerText = i18n[lang].resultTitle;
@@ -667,10 +594,9 @@
             }
         }
 
-        // ฟังก์ชันสลับการแสดงผลประเภทค้นหา (ไทย / ต่างชาติ)
+        // ฟังก์ชันสลับประเภทสัญชาติที่ค้นหา
         function switchTab(type) {
             currentType = type;
-            
             const tabThai = document.getElementById('tab-thai');
             const tabInter = document.getElementById('tab-inter');
             const inputThaiGroup = document.getElementById('input-thai-group');
@@ -694,53 +620,54 @@
             lucide.createIcons();
         }
 
-        // ฟังก์ชันเมื่อกดปุ่ม "ค้นหาข้อมูล"
-        function handleSearch(event) {
+        // ฟังก์ชันค้นหาข้อมูลสดๆ จากระบบคลาวด์ Firestore (ดึงผ่าน ID ปลอดภัยมาก)
+        async function handleSearch(event) {
             event.preventDefault();
             hideResult();
 
-            let queryValue = "";
-            let foundStudent = null;
+            if (!isFirebaseLoaded) {
+                showError("ระบบคลาวด์ยังโหลดไม่เสร็จสิ้น กรุณารอ 2-3 วินาทีแล้วค้นหาใหม่อีกครั้ง");
+                return;
+            }
 
+            let queryValue = "";
             if (currentType === 'thai') {
                 queryValue = document.getElementById('id-card').value.trim();
                 if (queryValue.length !== 13) {
                     showError(i18n[currentLang].alertEmptyId);
                     return;
                 }
-                foundStudent = studentDatabase.find(student => student.id === queryValue);
             } else {
                 queryValue = document.getElementById('passport').value.trim().toUpperCase();
                 if (queryValue.length < 5) {
                     showError(i18n[currentLang].alertEmptyPassport);
                     return;
                 }
-                foundStudent = studentDatabase.find(student => student.id.toUpperCase() === queryValue);
             }
 
-            if (foundStudent) {
-                activeStudentData = foundStudent;
-                showResult(foundStudent);
-            } else {
-                showError(i18n[currentLang].alertNotFound);
+            try {
+                // ค้นหาแบบตรงจุดจาก Document ID เพื่อลดค่าดาวน์โหลดคลาวด์และเพื่อความปลอดภัยสูงสุด (ไม่เปิดคิวรี่แบบฟลัด)
+                // ตามกฎข้อที่ 1: /artifacts/{appId}/public/data/{collectionName}/{docId}
+                const docRef = window.doc(window.db, 'artifacts', window.appId, 'public', 'data', 'students', queryValue);
+                const docSnap = await window.getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    activeStudentData = docSnap.data();
+                    showResult(activeStudentData);
+                } else {
+                    showError(i18n[currentLang].alertNotFound);
+                }
+            } catch (error) {
+                console.error("Error searching student from Cloud: ", error);
+                showError("เกิดข้อผิดพลาดในการเชื่อมต่อคลาวด์ กรุณาลองใหม่อีกครั้ง");
             }
         }
 
-        // ฟังก์ชันแสดงการ์ดข้อมูลส่วนตัวนักเรียน
+        // แสดงผลลัพธ์ข้อมูลนักเรียน
         function showResult(student) {
             document.getElementById('res-student-id').innerText = student.studentId;
-            
-            if (typeof student.fullname === 'object') {
-                document.getElementById('res-fullname').innerText = student.fullname[currentLang] || student.fullname['th'] || student.fullname['en'];
-            } else {
-                document.getElementById('res-fullname').innerText = student.fullname;
-            }
-
-            if (typeof student.birthdate === 'object') {
-                document.getElementById('res-birthdate').innerText = student.birthdate[currentLang] || student.birthdate['th'] || student.birthdate['en'];
-            } else {
-                document.getElementById('res-birthdate').innerText = student.birthdate;
-            }
+            document.getElementById('res-fullname').innerText = student.fullname;
+            document.getElementById('res-birthdate').innerText = student.birthdate;
 
             const confirmStatus = document.getElementById('confirm-status');
             confirmStatus.classList.add('hidden');
@@ -750,10 +677,10 @@
             resultCard.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ฟังก์ชันประมวลผลไฟล์ Excel/CSV ด้วย SheetJS
-        function processExcel() {
+        // อัปโหลด Excel ตรงเข้าฐานข้อมูลคลาวด์ถาวรด้วย Batch Write (เร็วและมีประสิทธิภาพสูง)
+        function processExcelToCloud() {
             if (!isAdminAuthenticated) {
-                alert("สิทธิ์ถูกปฏิเสธ: คุณไม่มีสิทธิ์เข้าถึงข้อมูลส่วนนี้");
+                alert("สิทธิ์ถูกปฏิเสธ: เฉพาะผู้ดูแลระบบคลาวด์เท่านั้นที่เข้าถึงการเขียนข้อมูลได้");
                 return;
             }
 
@@ -761,28 +688,36 @@
             const file = fileInput.files[0];
 
             if (!file) {
-                alert("กรุณาเลือกไฟล์ Excel หรือ CSV ก่อนกดปุ่มนำเข้าข้อมูล");
+                alert("กรุณาเลือกไฟล์ Excel หรือ CSV ของคุณก่อน");
                 return;
             }
 
+            const btnUpload = document.getElementById('btn-cloud-upload');
+            const originalBtnText = btnUpload.innerHTML;
+            btnUpload.disabled = true;
+            btnUpload.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span> กำลังบันทึกข้อมูลเข้าสู่ระบบคลาวด์...`;
+
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
-                    
-                    // แปลงแถวเป็น JSON Array (กำหนด header: 1)
                     const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                     
                     if (rawRows.length <= 1) {
-                        alert("ไม่พบข้อมูลนักศึกษาในไฟล์ หรือไฟล์ไม่มีข้อมูลที่ถูกต้อง");
+                        alert("ไม่พบข้อมูลที่ถูกต้องในไฟล์ Excel");
+                        btnUpload.disabled = false;
+                        btnUpload.innerHTML = originalBtnText;
                         return;
                     }
 
-                    const newDatabase = [];
+                    // ใช้ Batch Writes ของ Firebase ในการทยอยส่งข้อมูลทีละ 500 รายการพร้อมๆ กันอย่างปลอดภัยและรวดเร็ว
+                    let batch = window.writeBatch(window.db);
+                    let count = 0;
+                    let totalUploaded = 0;
 
                     for (let i = 1; i < rawRows.length; i++) {
                         const row = rawRows[i];
@@ -793,44 +728,50 @@
                         const fullnameVal = String(row[2]).trim();    
                         const birthdateVal = String(row[3]).trim();   
 
-                        newDatabase.push({
+                        // ใช้ Path กฎข้อที่ 1 เสมอ: doc(db, 'artifacts', appId, 'public', 'data', 'students', idValue)
+                        const docRef = window.doc(window.db, 'artifacts', window.appId, 'public', 'data', 'students', idValue);
+                        
+                        batch.set(docRef, {
                             id: idValue,
                             studentId: studentIdVal,
-                            fullname: {
-                                th: fullnameVal,
-                                en: fullnameVal
-                            },
-                            birthdate: {
-                                th: birthdateVal,
-                                en: birthdateVal
-                            }
+                            fullname: fullnameVal,
+                            birthdate: birthdateVal
                         });
+
+                        count++;
+                        totalUploaded++;
+
+                        // หากครบ Batch สูงสุดของ Firebase (500 รายการ) ให้ส่งข้อมูลขึ้นรอบแรกแล้วเริ่ม Batch ใหม่
+                        if (count === 500) {
+                            await batch.commit();
+                            batch = window.writeBatch(window.db);
+                            count = 0;
+                        }
                     }
 
-                    if (newDatabase.length > 0) {
-                        // เซฟเข้าตัวแปรระบบ
-                        studentDatabase = newDatabase;
-                        
-                        // เซฟเข้าระบบบันทึกความจำถาวร LocalStorage เพื่อป้องกันข้อมูลหายเมื่อปิดหน้าจอ
-                        localStorage.setItem('bba_student_db', JSON.stringify(newDatabase));
-                        
-                        loadDatabase();
-                        showToast("นำเข้าข้อมูลเสร็จสิ้น!", `บันทึกข้อมูลนักศึกษาทั้งหมด ${studentDatabase.length} คนลงในระบบของเบราว์เซอร์อย่างถาวรเรียบร้อยแล้ว`);
-                        fileInput.value = ""; 
-                    } else {
-                        alert("ไม่พบรูปแบบข้อมูลที่ถูกต้องในไฟล์ กรุณาตรวจสอบตามคอลัมน์ที่แนะนำ");
+                    // ส่งข้อมูลที่เหลืออยู่
+                    if (count > 0) {
+                        await batch.commit();
                     }
+
+                    // ดึงจำนวนล่าสุดมาแสดงบนหน้าแอดมิน
+                    getCloudCount();
+                    showToast("บันทึกคลาวด์ถาวรสำเร็จ!", `อัปโหลดประวัติข้อมูลนักศึกษารวมทั้งหมด ${totalUploaded} คนขึ้นสู่ฐานข้อมูลกลางเรียบร้อยแล้ว!`);
+                    fileInput.value = "";
 
                 } catch (error) {
-                    console.error(error);
-                    alert("เกิดข้อผิดพลาดในการอ่านไฟล์: " + error.message);
+                    console.error("Cloud Upload Error: ", error);
+                    alert("เกิดข้อผิดพลาดในการส่งข้อมูลขึ้นคลาวด์: " + error.message);
+                } finally {
+                    btnUpload.disabled = false;
+                    btnUpload.innerHTML = originalBtnText;
                 }
             };
             
             reader.readAsArrayBuffer(file);
         }
 
-        // ฟังก์ชันดาวน์โหลดไฟล์ตัวอย่าง Excel
+        // ฟังก์ชันดาวน์โหลดรูปแบบ Excel ตัวอย่าง
         function downloadSampleTemplate() {
             const headers = [
                 ["เลขประจำตัวประชาชนหรือพาสปอร์ต", "รหัสนักศึกษา", "ชื่อ-นามสกุล", "วันเดือนปีเกิด"],
@@ -844,7 +785,7 @@
             XLSX.writeFile(wb, "bba_student_template.xlsx");
         }
 
-        // ฟังก์ชันแสดงการแจ้งเตือนแบบสวยงาม (Toast Notification)
+        // แสดงแจ้งเตือนผลลัพธ์
         function showToast(title, desc) {
             const toast = document.getElementById('status-toast');
             document.getElementById('toast-title').innerText = title;
@@ -858,7 +799,7 @@
             toast.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ฟังก์ชันตรวจสอบและยืนยันข้อมูลความถูกต้อง
+        // บันทึกยืนยันความถูกต้องนักศึกษา
         function confirmData(isCorrect) {
             const confirmStatus = document.getElementById('confirm-status');
             confirmStatus.classList.remove('hidden');
@@ -883,14 +824,12 @@
             lucide.createIcons();
         }
 
-        // ซ่อนผลลัพธ์การค้นหา
         function hideResult() {
             activeStudentData = null;
             document.getElementById('result-card').classList.add('hidden');
             document.getElementById('error-message').classList.add('hidden');
         }
 
-        // แสดงผลลัพธ์การกรอกผิดพลาด
         function showError(message) {
             const errorBox = document.getElementById('error-message');
             const errorText = document.getElementById('error-text');

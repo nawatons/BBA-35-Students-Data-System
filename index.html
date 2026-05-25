@@ -112,7 +112,7 @@
                 </div>
 
                 <div class="mt-6">
-                    <button type="submit" id="btn-submit-search" class="w-full bg-bba-red hover-bg-bba-red text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-base">
+                    <button type="submit" id="btn-submit-search" class="w-full bg-bba-red hover:bg-bba-red text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-base">
                         <i data-lucide="search" class="w-5 h-5"></i>
                         <span id="btn-search-text">ค้นหาข้อมูลส่วนตัว</span>
                     </button>
@@ -214,7 +214,7 @@
         // =========================================================================
         // ⚠️ ขั้นตอนสำคัญ: นำลิงก์ Web App URL ที่ได้จาก Google Apps Script มาวางแทนที่ตรงนี้ครับ ⚠️
         // =========================================================================
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxbZLjb-vwuL6-5gn7kQa_IEvofc2AoIqJqcRB7ogeCCQLAgVCSI9BldJiBVcy6MAYDvQ/exec";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyWduHHidW9nOXbMbo5AteF0jhQuWku9f5D60CMbv5Noby_inOEZbwPBu8NvFu-7CdFUg/exec";
 
         // สถานะของแอพปัจจุบัน
         let currentLang = 'th';
@@ -253,7 +253,7 @@
                 alertNotFound: "ไม่พบข้อมูลนักศึกษาใน Google Sheets กรุณาตรวจสอบเลขที่กรอกใหม่อีกครั้ง หรือติดต่อฝ่ายทะเบียนหลักสูตร BBA",
                 saveSuccess: "บันทึกข้อมูลความถูกต้องสำเร็จ ขอบคุณสำหรับการตรวจสอบข้อมูลของคุณค่ะ/ครับ",
                 saveError: "ระบบได้รับข้อมูลเรียบร้อยแล้ว กรุณาติดต่อขอแก้ไขเอกสารที่สำนักงานหลักสูตร BBA ในเวลาราชการ",
-                connectionError: "เกิดข้อผิดพลาดในการติดต่อฐานข้อมูล โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต"
+                connectionError: "เกิดข้อผิดพลาดในการติดต่อฐานข้อมูล โปรดลองเปิดเว็บใหม่อีกครั้ง หรือเช็คสิทธิ์การตั้งค่า Deployment ใน Google Sheet"
             },
             en: {
                 headerSub: "BBA Online Student Information System",
@@ -285,7 +285,7 @@
                 alertNotFound: "Student record not found in Google Sheets. Please verify your identification number or contact the BBA office.",
                 saveSuccess: "Confirmation recorded successfully. Thank you for verifying your profile!",
                 saveError: "Request received. Please contact the BBA Program Office during office hours to submit correction forms.",
-                connectionError: "Failed to connect to database. Please check your internet connection."
+                connectionError: "Failed to connect to database. Please refresh or verify the Deployment settings on Google Sheets."
             }
         };
 
@@ -419,7 +419,13 @@
             try {
                 // ส่งคำขอค้นหาไปยัง Google Apps Script (ดึงแบบปลอดภัย)
                 const fetchUrl = `${GAS_WEB_APP_URL}?studentIdCard=${encodeURIComponent(queryValue)}`;
-                const response = await fetch(fetchUrl);
+                
+                // ใช้ fetch ดึงข้อมูลพร้อมกำหนดโหมด redirect เพื่อติดตามโครงสร้างของ Google Apps Script
+                const response = await fetch(fetchUrl, {
+                    method: 'GET',
+                    mode: 'cors',
+                    redirect: 'follow'
+                });
                 
                 if (!response.ok) {
                     throw new Error("Network response was not ok");

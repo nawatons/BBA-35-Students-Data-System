@@ -26,7 +26,7 @@
         .focus-ring-bba-red:focus { --tw-ring-color: #d13838; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between" onload="initApp()">
 
     <!-- ส่วนหัวของเว็บไซต์ (Header) -->
     <header class="bg-bba-red text-white shadow-md transition-all duration-300">
@@ -102,13 +102,16 @@
     <!-- ส่วนจัดการอัปโหลด Excel (Admin Panel) - ซ่อนไว้เป็นค่าเริ่มต้น และปลดล็อกด้วยรหัสผ่านเท่านั้น -->
     <div id="admin-panel" class="hidden bg-slate-800 text-white border-b border-slate-700 py-6 px-4 transition-all duration-300">
         <div class="max-w-4xl mx-auto space-y-4">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between border-b border-slate-750 pb-3">
                 <h3 class="font-bold flex items-center gap-2 text-base text-yellow-400">
                     <i data-lucide="shield-alert"></i>
                     <span id="admin-title">แผงจัดการข้อมูลสำหรับผู้ดูแลระบบ (Admin Database Management)</span>
                 </h3>
                 <div class="flex items-center gap-3">
-                    <button onclick="logoutAdmin()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded text-slate-300 hover:text-white transition-all flex items-center gap-1">
+                    <button onclick="resetDatabase()" class="text-xs bg-red-600 hover:bg-red-750 px-2.5 py-1 rounded text-white font-semibold transition-all flex items-center gap-1 shadow-sm">
+                        <i data-lucide="rotate-ccw" class="w-3 h-3"></i> รีเซ็ตเป็นค่าเริ่มต้น
+                    </button>
+                    <button onclick="logoutAdmin()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded text-slate-300 hover:text-white transition-all flex items-center gap-1 border border-slate-600">
                         <i data-lucide="log-out" class="w-3 h-3"></i> ล็อกเอาท์
                     </button>
                     <button onclick="toggleAdminPanel(false)" class="text-slate-400 hover:text-white">
@@ -117,8 +120,8 @@
                 </div>
             </div>
             
-            <p class="text-xs text-slate-300" id="admin-desc">
-                คุณสามารถอัปโหลดไฟล์ Excel (.xlsx, .xls) เพื่ออัปเดตรายชื่อนักศึกษาในระบบได้ทันที โดยจัดเรียงคอลัมน์ดังนี้: <br>
+            <p class="text-xs text-slate-300 leading-relaxed" id="admin-desc">
+                คุณสามารถอัปโหลดไฟล์ Excel (.xlsx, .xls) เพื่ออัปเดตรายชื่อนักศึกษาในระบบได้ทันที ข้อมูลจะถูกบันทึกไว้ในเบราว์เซอร์นี้ถาวร โดยจัดเรียงคอลัมน์ดังนี้: <br>
                 <strong>คอลัมน์ 1:</strong> เลขประจำตัวประชาชน/พาสปอร์ต | 
                 <strong>คอลัมน์ 2:</strong> รหัสประจำตัวนักศึกษา | 
                 <strong>คอลัมน์ 3:</strong> ชื่อ-นามสกุล | 
@@ -131,7 +134,7 @@
                     <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-yellow-500 file:text-slate-900 hover:file:bg-yellow-400 cursor-pointer">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="processExcel()" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2 px-6 rounded-md transition-all flex items-center justify-center gap-2 shadow">
+                    <button onclick="processExcel()" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2.5 px-6 rounded-md transition-all flex items-center justify-center gap-2 shadow">
                         <i data-lucide="upload-cloud" class="w-4 h-4"></i>
                         <span id="btn-upload-submit">นำเข้าข้อมูลจากไฟล์</span>
                     </button>
@@ -139,10 +142,15 @@
             </div>
 
             <!-- แสดงสถานะไฟล์ปัจจุบัน -->
-            <div class="text-xs text-slate-400 flex items-center gap-2">
-                <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
-                <span><span id="txt-db-count">3</span> รายการในระบบขณะนี้</span>
-                <button onclick="downloadSampleTemplate()" class="text-blue-400 hover:underline ml-auto flex items-center gap-1">
+            <div class="text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center gap-2">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                    <span>สถานะข้อมูล: <span id="txt-db-status" class="font-bold text-yellow-400">กำลังโหลด...</span></span>
+                </div>
+                <span class="hidden sm:inline text-slate-600">|</span>
+                <span>จำนวนข้อมูล: <span id="txt-db-count" class="font-bold text-white">0</span> รายการในระบบขณะนี้</span>
+                
+                <button onclick="downloadSampleTemplate()" class="text-blue-400 hover:underline sm:ml-auto flex items-center gap-1 mt-2 sm:mt-0">
                     <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
                     <span id="txt-download-template">ดาวน์โหลดไฟล์เทมเพลตตัวอย่าง (.xlsx)</span>
                 </button>
@@ -319,52 +327,36 @@
         // ----------------------------------------------------
         // ส่วนข้อมูลรหัสผ่านและการเข้าสู่ระบบ Admin 
         // ----------------------------------------------------
-        const ADMIN_SECRET_PASSWORD = "BBAAdmin2026"; // แก้ไขรหัสผ่านได้ที่ตรงนี้เลยครับ!
-        let isAdminAuthenticated = false;            // ตรวจสอบว่าแอดมินล็อกอินหรือยัง
+        const ADMIN_SECRET_PASSWORD = "BBAAdmin2026"; // สามารถแก้ไขรหัสผ่านได้ที่ตรงนี้เลยครับ!
+        let isAdminAuthenticated = false;            // ตรวจสอบสถานะการล็อกอินแอดมิน
 
         // ----------------------------------------------------
-        // ส่วนข้อมูลจำลองเริ่มต้น (Initial Database) 
+        // ส่วนรายชื่อนักศึกษาเริ่มต้น (Default Starter Pack)
+        // ดึงมาจากข้อมูลบางส่วนในไฟล์ bba_student_template.xlsx ของคุณ เพื่อไว้เปิดใช้งานเริ่มต้นได้ทันที
         // ----------------------------------------------------
-        let studentDatabase = [
-            {
-                id: "1234567890123", 
-                studentId: "65001",
-                fullname: {
-                    th: "นายสมชาย รักดี",
-                    en: "Mr. Somchai Rakdee"
-                },
-                birthdate: {
-                    th: "15 มกราคม 2551",
-                    en: "January 15, 2008"
-                }
-            },
-            {
-                id: "9876543210123",
-                studentId: "65002",
-                fullname: {
-                    th: "นางสาวสมหญิง นามสมมุติ",
-                    en: "Ms. Somying Namsommut"
-                },
-                birthdate: {
-                    th: "24 ตุลาคม 2550",
-                    en: "October 24, 2007"
-                }
-            },
-            {
-                id: "AA1234567",
-                studentId: "65009",
-                fullname: {
-                    th: "นายจอห์น สมิธ",
-                    en: "Mr. John Smith"
-                },
-                birthdate: {
-                    th: "05 มีนาคม 2551",
-                    en: "March 5, 2008"
-                }
-            }
+        const defaultStudentDatabase = [
+            { id: "1100600515106", studentId: "6902640017", fullname: "Apitchaya Fuangfoong", birthdate: "11/May/2006" },
+            { id: "1149901028989", studentId: "6902640025", fullname: "Araya Aurairat", birthdate: "07/February/2008" },
+            { id: "1102003920185", studentId: "6902640033", fullname: "Arisa Micaela Hieronimi", birthdate: "29/November/2007" },
+            { id: "1103704054493", studentId: "6902640041", fullname: "Arisara Tanikchalisa", birthdate: "04/January/2006" },
+            { id: "1103400146151", studentId: "6902640058", fullname: "Ariyapol Deelert", birthdate: "30/March/2008" },
+            { id: "1409903527033", studentId: "6902640066", fullname: "Arnon Pothinam", birthdate: "29/August/2006" },
+            { id: "1101700438228", studentId: "6902640074", fullname: "Ashira Jangkompee", birthdate: "30/October/2007" },
+            { id: "1101700437698", studentId: "6902640082", fullname: "Aumi Charoenphol", birthdate: "24/October/2007" },
+            { id: "1849901797561", studentId: "6902642062", fullname: "Tikamon Thammarat", birthdate: "22/January/2006" },
+            { id: "1101402342541", studentId: "6902642070", fullname: "Tipwarintorn Luangphituck", birthdate: "01/October/2006" },
+            { id: "1102200257781", studentId: "6902642088", fullname: "Touchtam Kusoltech", birthdate: "02/September/2007" },
+            { id: "1100401406927", studentId: "6902642096", fullname: "Vachirawin Chettanacharoenchai", birthdate: "06/January/2008" },
+            { id: "1102400216387", studentId: "6902642104", fullname: "Varatchaya Pimprapoat", birthdate: "21/May/2008" },
+            { id: "1103900234032", studentId: "6902642112", fullname: "Veeravit Sodsrisuwan", birthdate: "09/May/2007" },
+            { id: "1101402312595", studentId: "6902642120", fullname: "Vintikiat Thuniljinda", birthdate: "17/July/2005" },
+            { id: "1102003802573", studentId: "6902642138", fullname: "Voradaras Kasemveerasant", birthdate: "06/September/2006" }
         ];
 
-        // ระบบพจนานุกรมเพื่อเปลี่ยนคำบนเว็บไซต์ (Dictionary for Language Switch)
+        // ตัวแปรหลักที่จะเก็บฐานข้อมูลปัจจุบัน
+        let studentDatabase = [];
+
+        // ระบบสลับเปลี่ยนภาษา (Dictionary for Language Switch)
         const i18n = {
             th: {
                 headerSub: "ระบบบริการข้อมูลนักศึกษาออนไลน์ | BBA Student Portal",
@@ -435,13 +427,43 @@
         let currentType = 'thai';
         let activeStudentData = null; // ตัวแปรเก็บข้อมูลนักเรียนที่ถูกค้นพบ
 
+        // ฟังก์ชันเริ่มต้นที่จะทำงานทันทีที่เปิดหน้าเว็บ
+        function initApp() {
+            loadDatabase();
+            setLanguage('th');
+        }
+
+        // ฟังก์ชันโหลดรายชื่อนักศึกษาจาก LocalStorage (จดจำข้อมูลถาวร)
+        function loadDatabase() {
+            const savedDb = localStorage.getItem('bba_student_db');
+            const statusEl = document.getElementById('txt-db-status');
+            
+            if (savedDb) {
+                studentDatabase = JSON.parse(savedDb);
+                statusEl.innerText = "ใช้งานไฟล์ส่วนตัว (Personal Uploaded File)";
+                statusEl.className = "font-bold text-green-400";
+            } else {
+                studentDatabase = defaultStudentDatabase;
+                statusEl.innerText = "ใช้งานไฟล์เริ่มต้น (Default Demo Data)";
+                statusEl.className = "font-bold text-yellow-400";
+            }
+            document.getElementById('txt-db-count').innerText = studentDatabase.length;
+        }
+
+        // ฟังก์ชันรีเซ็ตระบบฐานข้อมูลกลับเป็นตัวเริ่มต้น
+        function resetDatabase() {
+            if (confirm("คุณต้องการล้างข้อมูลนักเรียนที่เคยอัปโหลด และกลับไปใช้ข้อมูลเริ่มต้นใช่หรือไม่?")) {
+                localStorage.removeItem('bba_student_db');
+                loadDatabase();
+                showToast("รีเซ็ตระบบเรียบร้อย", "ระบบกลับมาใช้งานรายชื่อนักศึกษาเริ่มต้นเรียบร้อยแล้ว");
+            }
+        }
+
         // ฟังก์ชันจัดการสิทธิ์การเข้าใช้งาน Admin
         function handleAdminAccess() {
             if (isAdminAuthenticated) {
-                // ถ้าล็อกอินแล้ว ให้กดเปิด-ปิดแถบได้เลย
                 toggleAdminPanel();
             } else {
-                // ถ้ายังไม่ล็อกอิน ให้แสดง Modal ถามรหัสผ่าน
                 openPasswordModal();
             }
         }
@@ -464,13 +486,11 @@
             const errorMsg = document.getElementById('pwd-error-msg');
 
             if (inputPwd === ADMIN_SECRET_PASSWORD) {
-                // ล็อกอินสำเร็จ
                 isAdminAuthenticated = true;
                 closePasswordModal();
-                toggleAdminPanel(true); // เปิดแผง Admin
+                toggleAdminPanel(true);
                 showToast("ยินดีต้อนรับผู้ดูแลระบบ", "เข้าสู่ระบบการจัดการฐานข้อมูลสำเร็จ");
             } else {
-                // รหัสผ่านผิด
                 errorMsg.classList.remove('hidden');
                 document.getElementById('admin-password').value = "";
                 document.getElementById('admin-password').focus();
@@ -480,15 +500,14 @@
         // ล็อกเอาท์ผู้ดูแลระบบ
         function logoutAdmin() {
             isAdminAuthenticated = false;
-            toggleAdminPanel(false); // ปิดแผง
-            showToast("ออกจากระบบสำเร็จ", "ปิดสิทธิ์การเข้าถึงข้อมูลระบบเรียบร้อย");
+            toggleAdminPanel(false);
+            showToast("ออกจากระบบสำเร็จ", "ปิดสิทธิ์การเข้าถึงระบบควบคุมเรียบร้อย");
         }
 
         // ฟังก์ชันในการสลับภาษา (ไทย/อังกฤษ)
         function setLanguage(lang) {
             currentLang = lang;
             
-            // ปรับปุ่มเปลี่ยนภาษา
             const btnTh = document.getElementById('btn-lang-th');
             const btnEn = document.getElementById('btn-lang-en');
             
@@ -507,7 +526,6 @@
             document.getElementById('instruction-desc').innerText = i18n[lang].instructionDesc;
             document.getElementById('search-title').innerText = i18n[lang].searchTitle;
             
-            // แท็บ
             const tabThai = document.getElementById('tab-thai');
             const tabInter = document.getElementById('tab-inter');
             if (currentType === 'thai') {
@@ -520,22 +538,18 @@
             tabThai.innerHTML = i18n[lang].tabThai;
             tabInter.innerHTML = i18n[lang].tabInter;
 
-            // ฟอร์มกรอกข้อมูล
             document.getElementById('label-idcard').innerText = i18n[lang].labelIdcard;
             document.getElementById('help-idcard').innerText = i18n[lang].helpIdcard;
             document.getElementById('label-passport').innerText = i18n[lang].labelPassport;
             document.getElementById('help-passport').innerText = i18n[lang].helpPassport;
             
-            // ปุ่มค้นหา
             document.getElementById('btn-search').innerHTML = `<i data-lucide="search" class="w-5 h-5"></i> ${i18n[lang].btnSearch}`;
 
-            // แผงแสดงผล (กรณีมีข้อมูลแสดงอยู่)
             document.getElementById('error-title').innerText = i18n[lang].errorTitle;
             document.getElementById('result-title').innerText = i18n[lang].resultTitle;
             document.getElementById('result-subtitle').innerText = i18n[lang].resultSubtitle;
             document.getElementById('secure-text').innerText = i18n[lang].secureText;
 
-            // ตารางหัวข้อเฉพาะ 3 ข้อมูลหลัก
             document.getElementById('lbl-student-id').innerText = i18n[lang].lblStudentId;
             document.getElementById('lbl-fullname').innerText = i18n[lang].lblFullname;
             document.getElementById('lbl-birthdate').innerText = i18n[lang].lblBirthdate;
@@ -545,19 +559,16 @@
             document.getElementById('btn-incorrect').innerText = i18n[lang].btnIncorrect;
             document.getElementById('footer-pdpa').innerText = i18n[lang].footerPdpa;
 
-            // โหลดไอคอนใหม่
             lucide.createIcons();
 
-            // ถ้าเปิดดูข้อมูลอยู่ ให้ทำการอัปเดตภาษาของข้อมูลที่แสดงด้วย
             if (activeStudentData) {
                 showResult(activeStudentData);
             }
         }
 
-        // ฟังก์ชันเปิด-ปิด แผงควบคุมผู้ดูแลระบบ (Excel Upload Panel)
+        // ฟังก์ชันเปิด-ปิด แผงควบคุมผู้ดูแลระบบ
         function toggleAdminPanel(forceState) {
             const adminPanel = document.getElementById('admin-panel');
-            
             if (forceState !== undefined) {
                 if (forceState) {
                     adminPanel.classList.remove('hidden');
@@ -567,8 +578,6 @@
             } else {
                 adminPanel.classList.toggle('hidden');
             }
-            // ทำการปรับปรุงจำนวนข้อมูลล่าสุดเสมอที่แสดงผล
-            document.getElementById('txt-db-count').innerText = studentDatabase.length;
         }
 
         // ฟังก์ชันสลับการแสดงผลประเภทค้นหา (ไทย / ต่างชาติ)
@@ -580,7 +589,6 @@
             const inputThaiGroup = document.getElementById('input-thai-group');
             const inputInterGroup = document.getElementById('input-inter-group');
 
-            // ล้างค่าในฟิลด์เก่า
             document.getElementById('id-card').value = "";
             document.getElementById('passport').value = "";
             hideResult();
@@ -624,18 +632,17 @@
             }
 
             if (foundStudent) {
-                activeStudentData = foundStudent; // บันทึกข้อมูลที่ค้นพบ
+                activeStudentData = foundStudent;
                 showResult(foundStudent);
             } else {
                 showError(i18n[currentLang].alertNotFound);
             }
         }
 
-        // ฟังก์ชันแสดงการ์ดข้อมูลส่วนตัวนักเรียนตามภาษาที่เลือก
+        // ฟังก์ชันแสดงการ์ดข้อมูลส่วนตัวนักเรียน
         function showResult(student) {
             document.getElementById('res-student-id').innerText = student.studentId;
             
-            // ถ้ารองรับข้อมูลที่มีทั้ง 2 ภาษาจาก Excel
             if (typeof student.fullname === 'object') {
                 document.getElementById('res-fullname').innerText = student.fullname[currentLang] || student.fullname['th'] || student.fullname['en'];
             } else {
@@ -648,7 +655,6 @@
                 document.getElementById('res-birthdate').innerText = student.birthdate;
             }
 
-            // รีเซ็ตสถานะปุ่มยืนยันข้อมูล
             const confirmStatus = document.getElementById('confirm-status');
             confirmStatus.classList.add('hidden');
 
@@ -657,9 +663,8 @@
             resultCard.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ฟังก์ชันประมวลผลไฟล์ Excel ด้วย SheetJS
+        // ฟังก์ชันประมวลผลไฟล์ Excel/CSV ด้วย SheetJS
         function processExcel() {
-            // ป้องกันการแฮกเรียกฟังก์ชันผ่าน Console โดยตรวจสอบสถานะการล็อกอินก่อน
             if (!isAdminAuthenticated) {
                 alert("สิทธิ์ถูกปฏิเสธ: คุณไม่มีสิทธิ์เข้าถึงข้อมูลส่วนนี้");
                 return;
@@ -679,11 +684,10 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     
-                    // เลือกอ่านข้อมูลจากชีตแรก (Sheet 1)
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     
-                    // แปลงข้อมูลแถวเป็น JSON Array (กำหนด header: 1 เพื่อเป็น array ซ้อน array)
+                    // แปลงแถวเป็น JSON Array (กำหนด header: 1)
                     const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                     
                     if (rawRows.length <= 1) {
@@ -691,22 +695,17 @@
                         return;
                     }
 
-                    // สร้างอาร์เรย์เก็บข้อมูลนักเรียนใหม่
                     const newDatabase = [];
 
-                    // เริ่มวนซ้ำตั้งแต่แถวที่ 2 (ดัชนี 1) เนื่องจากแถวแรกเป็นแถวหัวข้อ (Headers)
                     for (let i = 1; i < rawRows.length; i++) {
                         const row = rawRows[i];
-                        
-                        // ข้ามแถวที่ว่างเปล่า
                         if (!row || row.length === 0 || !row[0]) continue;
 
-                        const idValue = String(row[0]).trim();        // คอลัมน์ 1: ID Card หรือ Passport
-                        const studentIdVal = String(row[1]).trim();   // คอลัมน์ 2: รหัสนักศึกษา
-                        const fullnameVal = String(row[2]).trim();    // คอลัมน์ 3: ชื่อ-นามสกุล
-                        const birthdateVal = String(row[3]).trim();   // คอลัมน์ 4: วันเดือนปีเกิด
+                        const idValue = String(row[0]).trim();        
+                        const studentIdVal = String(row[1]).trim();   
+                        const fullnameVal = String(row[2]).trim();    
+                        const birthdateVal = String(row[3]).trim();   
 
-                        // ดันเข้าฐานข้อมูล
                         newDatabase.push({
                             id: idValue,
                             studentId: studentIdVal,
@@ -722,12 +721,15 @@
                     }
 
                     if (newDatabase.length > 0) {
-                        studentDatabase = newDatabase; // แทนที่ฐานข้อมูลเดิมด้วยข้อมูลใหม่จาก Excel
-                        document.getElementById('txt-db-count').innerText = studentDatabase.length;
+                        // เซฟเข้าตัวแปรระบบ
+                        studentDatabase = newDatabase;
                         
-                        // แสดงข้อความแจ้งเตือนความสำเร็จ
-                        showToast("นำเข้าข้อมูลเสร็จสิ้น!", `อัปเดตข้อมูลนักศึกษาจำนวน ${studentDatabase.length} รายการจากไฟล์เรียบร้อยแล้ว`);
-                        fileInput.value = ""; // เคลียร์ฟิลด์อัปโหลด
+                        // เซฟเข้าระบบบันทึกความจำถาวร LocalStorage เพื่อป้องกันข้อมูลหายเมื่อปิดหน้าจอ
+                        localStorage.setItem('bba_student_db', JSON.stringify(newDatabase));
+                        
+                        loadDatabase();
+                        showToast("นำเข้าข้อมูลเสร็จสิ้น!", `บันทึกข้อมูลนักศึกษาทั้งหมด ${studentDatabase.length} คนลงในระบบของเบราว์เซอร์อย่างถาวรเรียบร้อยแล้ว`);
+                        fileInput.value = ""; 
                     } else {
                         alert("ไม่พบรูปแบบข้อมูลที่ถูกต้องในไฟล์ กรุณาตรวจสอบตามคอลัมน์ที่แนะนำ");
                     }
@@ -741,12 +743,12 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // ฟังก์ชันดาวน์โหลดไฟล์ตัวอย่าง XLSX เพื่อให้ผู้ใช้คัดลอกรูปแบบได้ง่าย
+        // ฟังก์ชันดาวน์โหลดไฟล์ตัวอย่าง Excel
         function downloadSampleTemplate() {
             const headers = [
                 ["เลขประจำตัวประชาชนหรือพาสปอร์ต", "รหัสนักศึกษา", "ชื่อ-นามสกุล", "วันเดือนปีเกิด"],
-                ["1234567890123", "65001", "นายสมชาย รักดี", "15 มกราคม 2551"],
-                ["AA1234567", "65009", "Mr. John Smith", "March 5, 2008"]
+                ["1100600515106", "6902640017", "Apitchaya Fuangfoong", "11/May/2006"],
+                ["1149901028989", "6902640025", "Araya Aurairat", "07/February/2008"]
             ];
             
             const wb = XLSX.utils.book_new();
@@ -755,7 +757,7 @@
             XLSX.writeFile(wb, "bba_student_template.xlsx");
         }
 
-        // ฟังก์ชันแสดง Toast แจ้งเตือนของระบบ
+        // ฟังก์ชันแสดงการแจ้งเตือนแบบสวยงาม (Toast Notification)
         function showToast(title, desc) {
             const toast = document.getElementById('status-toast');
             document.getElementById('toast-title').innerText = title;
@@ -769,7 +771,7 @@
             toast.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ฟังก์ชันสำหรับแจ้งยืนยันข้อมูลความถูกต้อง
+        // ฟังก์ชันตรวจสอบและยืนยันข้อมูลความถูกต้อง
         function confirmData(isCorrect) {
             const confirmStatus = document.getElementById('confirm-status');
             confirmStatus.classList.remove('hidden');
@@ -794,14 +796,14 @@
             lucide.createIcons();
         }
 
-        // ฟังก์ชันซ่อนผลลัพธ์และแจ้งเตือนเก่า
+        // ซ่อนผลลัพธ์การค้นหา
         function hideResult() {
-            activeStudentData = null; // เคลียร์ตัวแปรข้อมูล
+            activeStudentData = null;
             document.getElementById('result-card').classList.add('hidden');
             document.getElementById('error-message').classList.add('hidden');
         }
 
-        // ฟังก์ชันแสดงข้อความเตือนเมื่อหาไม่เจอหรือกรอกผิด
+        // แสดงผลลัพธ์การกรอกผิดพลาด
         function showError(message) {
             const errorBox = document.getElementById('error-message');
             const errorText = document.getElementById('error-text');
@@ -809,9 +811,6 @@
             errorBox.classList.remove('hidden');
             errorBox.scrollIntoView({ behavior: 'smooth' });
         }
-
-        // เริ่มต้นเรียกใช้งานระบบ (เริ่มต้นเป็นภาษาไทย)
-        setLanguage('th');
     </script>
 </body>
 </html>

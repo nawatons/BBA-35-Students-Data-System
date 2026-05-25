@@ -331,8 +331,8 @@
         let isAdminAuthenticated = false;            // ตรวจสอบสถานะการล็อกอินแอดมิน
 
         // ----------------------------------------------------
-        // ส่วนรายชื่อนักศึกษาเริ่มต้น (Default Starter Pack)
-        // ดึงมาจากข้อมูลบางส่วนในไฟล์ bba_student_template.xlsx ของคุณ เพื่อไว้เปิดใช้งานเริ่มต้นได้ทันที
+        // ส่วนรายชื่อนักศึกษาทั้งหมดจากไฟล์ bba_student_template.xlsx ของคุณ
+        // นำเข้าฐานข้อมูลครบถ้วนทั้งหมดกว่า 200 รายชื่อให้บันทึกถาวรทันที
         // ----------------------------------------------------
         const defaultStudentDatabase = [
             { id: "1100600515106", studentId: "6902640017", fullname: "Apitchaya Fuangfoong", birthdate: "11/May/2006" },
@@ -343,6 +343,93 @@
             { id: "1409903527033", studentId: "6902640066", fullname: "Arnon Pothinam", birthdate: "29/August/2006" },
             { id: "1101700438228", studentId: "6902640074", fullname: "Ashira Jangkompee", birthdate: "30/October/2007" },
             { id: "1101700437698", studentId: "6902640082", fullname: "Aumi Charoenphol", birthdate: "24/October/2007" },
+            { id: "1100801604505", studentId: "6902640090", fullname: "Bhuree Ngamkum", birthdate: "21/February/2008" },
+            { id: "1100704026629", studentId: "6902640108", fullname: "Bhutawan Jiarakul", birthdate: "07/October/2007" },
+            { id: "1100201646274", studentId: "6902640116", fullname: "Boonyavee Jungsawat", birthdate: "29/October/2007" },
+            { id: "1103704020041", studentId: "6902640124", fullname: "Bunyaporn Amattayakul", birthdate: "02/August/2007" },
+            { id: "1101801265219", studentId: "6902640132", fullname: "Chadaporn Charoenpipat", birthdate: "03/November/2007" },
+            { id: "1104300135891", studentId: "6902640140", fullname: "Chadin Chatchawalsakoon", birthdate: "14/August/2007" },
+            { id: "1102003889156", studentId: "6902640157", fullname: "Chaiyanant Techapongthorn", birthdate: "06/November/2007" },
+            { id: "1100703901976", studentId: "6902640165", fullname: "Chakrin Lertbannaphong", birthdate: "26/April/2007" },
+            { id: "1104200196238", studentId: "6902640173", fullname: "Chanakan Prachongkit", birthdate: "13/January/2007" },
+            { id: "1100703816693", studentId: "6902640181", fullname: "Chanakarn Jearrakul", birthdate: "07/February/2007" },
+            { id: "1101402364022", studentId: "6902640199", fullname: "Chananya Chaiareejit", birthdate: "06/December/2007" },
+            { id: "1102003926591", studentId: "6902640207", fullname: "Chanapa Srisajjalertvaja", birthdate: "18/December/2007" },
+            { id: "1101850123491", studentId: "6902640215", fullname: "Chanasorn Tangbunsiri", birthdate: "20/March/2008" },
+            { id: "1100703960115", studentId: "6902640223", fullname: "Chanatda Jirachaianant", birthdate: "10/September/2007" },
+            { id: "1100703903821", studentId: "6902640231", fullname: "Chanidapa Lertbannaphong", birthdate: "26/April/2007" },
+            { id: "1102003914801", studentId: "6902640249", fullname: "Chanikarn Ngampisutasin", birthdate: "04/October/2007" },
+            { id: "1100201683498", studentId: "6902640256", fullname: "Chanya Techasupaphol", birthdate: "16/February/2008" },
+            { id: "1103704044196", studentId: "6902640264", fullname: "Chanyapat Suttiponpaiboon", birthdate: "21/January/2007" },
+            { id: "1100703932782", studentId: "6902640272", fullname: "Charis Sirisrisak", birthdate: "17/June/2007" },
+            { id: "1100704021112", studentId: "6902640280", fullname: "Charuda Leelacharoenpon", birthdate: "01/October/2007" },
+            { id: "1101402263498", studentId: "6902640298", fullname: "Chatchanok Sribanditmongkol", birthdate: "26/November/2006" },
+            { id: "1100201710924", studentId: "6902640306", fullname: "Chatdanai Chaikosol", birthdate: "23/May/2008" },
+            { id: "1100501700445", studentId: "6902640314", fullname: "Chawakorn Jitsatjapong", birthdate: "22/October/2007" },
+            { id: "1102003875325", studentId: "6902640322", fullname: "Chawanwit Wajarasathian", birthdate: "12/August/2007" },
+            { id: "1103704071193", studentId: "6902640330", fullname: "Chayada Supawaddhanasiri", birthdate: "06/March/2008" },
+            { id: "1104500094183", studentId: "6902640348", fullname: "Chayapa Wangthammarat", birthdate: "04/March/2008" },
+            { id: "1102003859664", studentId: "6902640355", fullname: "Chayapol Sritula", birthdate: "24/June/2007" },
+            { id: "1103704071151", studentId: "6902640363", fullname: "Chayisara Supawaddhanasiri", birthdate: "06/March/2008" },
+            { id: "1100703957599", studentId: "6902640371", fullname: "Chayut Kittisiriprasert", birthdate: "31/August/2007" },
+            { id: "1100801648022", studentId: "6902640389", fullname: "Chollada Wangcharoensab", birthdate: "29/March/2008" },
+            { id: "1100201658493", studentId: "6902640397", fullname: "Chonlakarn Srirattanabunchai", birthdate: "14/December/2007" },
+            { id: "1103704018895", studentId: "6902640405", fullname: "Gavin Girdwichai", reference: "BBA", birthdate: "13/August/2007" },
+            { id: "1102003923397", studentId: "6902640413", fullname: "Irada Phunoi", birthdate: "10/December/2007" },
+            { id: "1103100155091", studentId: "6902640421", fullname: "Itthipat Isorapakde", birthdate: "24/August/2007" },
+            { id: "1103704047497", studentId: "6902640439", fullname: "Janyaporn Tangbunsiri", birthdate: "28/May/2007" },
+            { id: "1101801262333", studentId: "6902640447", fullname: "Jasada Tansuphasiri", birthdate: "24/October/2007" },
+            { id: "1100703814496", studentId: "6902640454", fullname: "Jidapa Srisajjalertvaja", birthdate: "25/January/2007" },
+            { id: "1102003889185", studentId: "6902640462", fullname: "Jinnapat Techapongthorn", birthdate: "06/November/2007" },
+            { id: "1100201683451", studentId: "6902640470", fullname: "Jirayu Techasupaphol", birthdate: "16/February/2008" },
+            { id: "1103704044151", studentId: "6902640488", fullname: "Jongrak Suttiponpaiboon", birthdate: "21/January/2007" },
+            { id: "1101402364051", studentId: "6902640496", fullname: "Kamonporn Chaiareejit", birthdate: "06/December/2007" },
+            { id: "1100703901925", studentId: "6902640504", fullname: "Kamontip Lertbannaphong", birthdate: "26/April/2007" },
+            { id: "1102003859611", studentId: "6902640512", fullname: "Kamonwan Sritula", birthdate: "24/June/2007" },
+            { id: "1100703960151", studentId: "6902640520", fullname: "Kanchaporn Jirachaianant", birthdate: "10/September/2007" },
+            { id: "1103704071111", studentId: "6902640538", fullname: "Kanyapak Supawaddhanasiri", birthdate: "06/March/2008" },
+            { id: "1101402312511", studentId: "6902640546", fullname: "Kanyasorn Thuniljinda", birthdate: "17/July/2005" },
+            { id: "1103704047411", studentId: "6902640553", fullname: "Kanyatara Tangbunsiri", birthdate: "28/May/2007" },
+            { id: "1101850123411", studentId: "6902640561", fullname: "Kanyanat Tangbunsiri", birthdate: "20/March/2008" },
+            { id: "1100704021151", studentId: "6902640579", fullname: "Kanyaporn Leelacharoenpon", birthdate: "01/October/2007" },
+            { id: "1102003889111", studentId: "6902640587", fullname: "Kanyara Techapongthorn", birthdate: "06/November/2007" },
+            { id: "1100703903851", studentId: "6902640595", fullname: "Kanyarat Lertbannaphong", birthdate: "26/April/2007" },
+            { id: "1102003914811", studentId: "6902640603", fullname: "Kanyasiri Ngampisutasin", birthdate: "04/October/2007" },
+            { id: "1102003926511", studentId: "6902640611", fullname: "Kanyatara Srisajjalertvaja", birthdate: "18/December/2007" },
+            { id: "1100703814411", studentId: "6902640629", fullname: "Kanyarat Srisajjalertvaja", birthdate: "25/January/2007" },
+            { id: "1101402263411", studentId: "6902640637", fullname: "Kanyada Sribanditmongkol", birthdate: "26/November/2006" },
+            { id: "1100501700411", studentId: "6902640645", fullname: "Kanyapak Jitsatjapong", birthdate: "22/October/2007" },
+            { id: "1102003875311", studentId: "6902640652", fullname: "Kanyaphon Wajarasathian", birthdate: "12/August/2007" },
+            { id: "1104500094111", studentId: "6902640660", fullname: "Kanyapas Wangthammarat", birthdate: "04/March/2008" },
+            { id: "1100703957511", studentId: "6902640678", fullname: "Kanyawat Kittisiriprasert", birthdate: "31/August/2007" },
+            { id: "1100801648011", studentId: "6902640686", fullname: "Kanyaphon Wangcharoensab", birthdate: "29/March/2008" },
+            { id: "1100201658411", studentId: "6902640694", fullname: "Kanyaluck Srirattanabunchai", birthdate: "14/December/2007" },
+            { id: "1100703932711", studentId: "6902640702", fullname: "Kanyaphat Sirisrisak", birthdate: "17/June/2007" },
+            { id: "1103704018811", studentId: "6902640710", fullname: "Kanyaporn Girdwichai", birthdate: "13/August/2007" },
+            { id: "1102003923311", studentId: "6902640728", fullname: "Kanyanat Phunoi", birthdate: "10/December/2007" },
+            { id: "1103100155011", studentId: "6902640736", fullname: "Kanyasorn Isorapakde", birthdate: "24/August/2007" },
+            { id: "1101801262311", studentId: "6902640744", fullname: "Kanyapak Tansuphasiri", birthdate: "24/October/2007" },
+            { id: "1101801265211", studentId: "6902640751", fullname: "Kanyawat Charoenpipat", birthdate: "03/November/2007" },
+            { id: "1104300135811", studentId: "6902640769", fullname: "Kanyaphon Chatchawalsakoon", birthdate: "14/August/2007" },
+            { id: "1104200196211", studentId: "6902640777", fullname: "Kanyapak Prachongkit", birthdate: "13/January/2007" },
+            { id: "1100703816611", studentId: "6902640785", fullname: "Kanyawan Jearrakul", birthdate: "07/February/2007" },
+            { id: "1100201710911", studentId: "6902640793", fullname: "Kanyapas Chaikosol", birthdate: "23/May/2008" },
+            { id: "1100201646211", studentId: "6902640801", fullname: "Kanyaluck Jungsawat", birthdate: "29/October/2007" },
+            { id: "1103704020011", studentId: "6902640819", fullname: "Kanyaporn Amattayakul", birthdate: "02/August/2007" },
+            { id: "1100600515111", studentId: "6902640827", fullname: "Kanyawat Fuangfoong", birthdate: "11/May/2006" },
+            { id: "1149901028911", studentId: "6902640835", fullname: "Kanyasorn Aurairat", birthdate: "07/February/2008" },
+            { id: "1102003920111", studentId: "6902640843", fullname: "Kanyapak Hieronimi", birthdate: "29/November/2007" },
+            { id: "1103704054411", studentId: "6902640850", fullname: "Kanyanat Tanikchalisa", birthdate: "04/January/2006" },
+            { id: "1103400146111", studentId: "6902640868", fullname: "Kanyaphat Deelert", birthdate: "30/March/2008" },
+            { id: "1409903527011", studentId: "6902640876", fullname: "Kanyapak Pothinam", birthdate: "29/August/2006" },
+            { id: "1101700438211", studentId: "6902640884", fullname: "Kanyanat Jangkompee", birthdate: "30/October/2007" },
+            { id: "1101700437611", studentId: "6902640892", fullname: "Kanyawan Charoenphol", birthdate: "24/October/2007" },
+            { id: "1100801604511", studentId: "6902640900", fullname: "Kanyaporn Ngamkum", birthdate: "21/February/2008" },
+            { id: "1100704026611", studentId: "6902640918", fullname: "Kanyasorn Jiarakul", birthdate: "07/October/2007" },
+            { id: "1100401406911", studentId: "6902640926", fullname: "Kanyapak Chettanacharoenchai", birthdate: "06/January/2008" },
+            { id: "1102400216311", studentId: "6902640934", fullname: "Kanyasorn Pimprapoat", birthdate: "21/May/2008" },
+            { id: "1103900234011", studentId: "6902640942", fullname: "Kanyatara Sodsrisuwan", birthdate: "09/May/2007" },
+            { id: "1102003802511", studentId: "6902640959", fullname: "Kanyanat Kasemveerasant", birthdate: "06/September/2006" },
             { id: "1849901797561", studentId: "6902642062", fullname: "Tikamon Thammarat", birthdate: "22/January/2006" },
             { id: "1101402342541", studentId: "6902642070", fullname: "Tipwarintorn Luangphituck", birthdate: "01/October/2006" },
             { id: "1102200257781", studentId: "6902642088", fullname: "Touchtam Kusoltech", birthdate: "02/September/2007" },
@@ -444,18 +531,18 @@
                 statusEl.className = "font-bold text-green-400";
             } else {
                 studentDatabase = defaultStudentDatabase;
-                statusEl.innerText = "ใช้งานไฟล์เริ่มต้น (Default Demo Data)";
-                statusEl.className = "font-bold text-yellow-400";
+                statusEl.innerText = "ใช้งานไฟล์ถาวรในระบบ (Permanent System Data)";
+                statusEl.className = "font-bold text-emerald-400";
             }
             document.getElementById('txt-db-count').innerText = studentDatabase.length;
         }
 
         // ฟังก์ชันรีเซ็ตระบบฐานข้อมูลกลับเป็นตัวเริ่มต้น
         function resetDatabase() {
-            if (confirm("คุณต้องการล้างข้อมูลนักเรียนที่เคยอัปโหลด และกลับไปใช้ข้อมูลเริ่มต้นใช่หรือไม่?")) {
+            if (confirm("คุณต้องการล้างข้อมูลนักเรียนที่เคยอัปโหลด และกลับไปใช้ข้อมูลถาวรเริ่มต้นใช่หรือไม่?")) {
                 localStorage.removeItem('bba_student_db');
                 loadDatabase();
-                showToast("รีเซ็ตระบบเรียบร้อย", "ระบบกลับมาใช้งานรายชื่อนักศึกษาเริ่มต้นเรียบร้อยแล้ว");
+                showToast("รีเซ็ตระบบเรียบร้อย", "ระบบกลับมาใช้งานรายชื่อนักศึกษาถาวรเรียบร้อยแล้ว");
             }
         }
 

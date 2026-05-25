@@ -57,146 +57,217 @@
     <!-- เนื้อหาหลัก (Main Content) -->
     <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full">
         
-        <!-- ส่วนอธิบายการใช้งานสำหรับผู้ใช้ (คำชี้แจง) -->
-        <div class="bg-red-50 border-l-4 border-bba-red p-4 rounded-r-lg mb-6 shadow-sm">
-            <div class="flex gap-3">
-                <i data-lucide="info" class="w-5 h-5 text-bba-red shrink-0 mt-0.5"></i>
-                <div>
-                    <h3 class="font-semibold text-red-900 text-sm sm:text-base" id="instruction-title">คำชี้แจงในการตรวจสอบข้อมูล</h3>
-                    <p class="text-xs sm:text-sm text-red-700 mt-1" id="instruction-desc">
-                        กรุณากรอกเลขประจำตัวประชาชน 13 หลัก (สำหรับนักศึกษาสัญชาติไทย) หรือเลขที่หนังสือเดินทาง / Passport (สำหรับนักศึกษาต่างชาติ) เพื่อเข้าสู่ระบบตรวจสอบความถูกต้องของข้อมูลส่วนตัว หากพบข้อมูลไม่ถูกต้อง กรุณาติดต่อห้องทะเบียน BBA
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ฟอร์มค้นหาข้อมูล (Search Form Card) -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8 mb-6">
-            <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-6 flex items-center gap-2" id="search-title">
-                <i data-lucide="search" class="text-bba-red"></i>
-                ระบุตัวตนเพื่อตรวจสอบข้อมูล
-            </h2>
-
-            <!-- แถบเลือกสัญชาติ (ไทย / ต่างชาติ) -->
-            <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl mb-6">
-                <button type="button" id="tab-thai" onclick="switchTab('thai')" class="py-2.5 px-4 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 bg-white text-bba-red shadow-sm">
-                    🇹🇭 นักศึกษาสัญชาติไทย
-                </button>
-                <button type="button" id="tab-inter" onclick="switchTab('inter')" class="py-2.5 px-4 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-800">
-                    🌐 International Student
-                </button>
-            </div>
-
-            <form id="search-form" onsubmit="handleSearch(event)">
-                <!-- ช่องกรอกข้อมูลสำหรับนักเรียนไทย -->
-                <div id="input-thai-group" class="space-y-2">
-                    <label for="id-card" class="block text-sm font-semibold text-slate-700" id="label-idcard">เลขประจำตัวประชาชน 13 หลัก</label>
-                    <div class="relative">
-                        <input type="text" id="id-card" maxlength="13" placeholder="เช่น 1100600515106" 
-                            class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-red-400 outline-none transition-all text-base tracking-widest"
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                        <i data-lucide="credit-card" class="absolute left-3.5 top-3.5 text-slate-400 w-5 h-5"></i>
-                    </div>
-                    <p class="text-xs text-slate-500" id="help-idcard">ใส่เฉพาะตัวเลข 13 หลักเท่านั้น ไม่ต้องเว้นวรรคหรือมีเครื่องหมายขีด (-)</p>
-                </div>
-
-                <!-- ช่องกรอกข้อมูลสำหรับนักเรียนต่างชาติ (ซ่อนไว้เริ่มต้น) -->
-                <div id="input-inter-group" class="space-y-2 hidden">
-                    <label for="passport" class="block text-sm font-semibold text-slate-700" id="label-passport">เลขที่หนังสือเดินทาง (Passport Number)</label>
-                    <div class="relative">
-                        <input type="text" id="passport" placeholder="e.g. AA1234567" 
-                            class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-red-400 outline-none transition-all text-base tracking-wider uppercase">
-                        <i data-lucide="globe" class="absolute left-3.5 top-3.5 text-slate-400 w-5 h-5"></i>
-                    </div>
-                    <p class="text-xs text-slate-500" id="help-passport">กรอกรหัสตัวอักษรภาษาอังกฤษและตัวเลขตามปรากฏในพาสปอร์ต</p>
-                </div>
-
-                <div class="mt-6">
-                    <button type="submit" id="btn-submit-search" class="w-full bg-bba-red hover:bg-bba-red text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-base">
-                        <i data-lucide="search" class="w-5 h-5"></i>
-                        <span id="btn-search-text">ค้นหาข้อมูลส่วนตัว</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- หน้าต่างแจ้งเตือนข้อผิดพลาด (ซ่อนอยู่) -->
-        <div id="error-message" class="hidden bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-4 mb-6 flex gap-3 items-center">
-            <i data-lucide="alert-circle" class="w-6 h-6 text-rose-600 shrink-0"></i>
-            <div>
-                <h4 class="font-bold text-sm sm:text-base" id="error-title">ไม่พบข้อมูลในระบบ</h4>
-                <p id="error-text" class="text-xs sm:text-sm mt-0.5">กรุณาตรวจสอบเลขที่กรอกอีกครั้ง หรือติดต่อฝ่ายทะเบียน</p>
-            </div>
-        </div>
-
-        <!-- พื้นที่แสดงผลลัพธ์ข้อมูลนักเรียน (ซ่อนไว้เริ่มต้น) -->
-        <div id="result-card" class="hidden bg-white rounded-2xl shadow-md border border-red-200 p-6 sm:p-8 space-y-6">
-            
-            <!-- ส่วนสถานะการตรวจสอบ -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 border-slate-100">
-                <div class="flex items-center gap-3">
-                    <span class="p-2 bg-red-100 text-bba-red rounded-full">
-                        <i data-lucide="check-circle-2" class="w-6 h-6"></i>
-                    </span>
+        <!-- ส่วนหน้าแรก (หน้าสืบค้นข้อมูล) -->
+        <div id="page-search" class="space-y-6">
+            <!-- ส่วนอธิบายการใช้งานสำหรับผู้ใช้ (คำชี้แจง) -->
+            <div class="bg-red-50 border-l-4 border-bba-red p-4 rounded-r-lg shadow-sm">
+                <div class="flex gap-3">
+                    <i data-lucide="info" class="w-5 h-5 text-bba-red shrink-0 mt-0.5"></i>
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800" id="result-title">พบข้อมูลประวัตินักศึกษา</h2>
-                        <p class="text-xs text-slate-500" id="result-subtitle">กรุณาตรวจสอบความถูกต้องของข้อมูลทุกช่องด้านล่าง</p>
+                        <h3 class="font-semibold text-red-900 text-sm sm:text-base" id="instruction-title">คำชี้แจงในการตรวจสอบข้อมูล</h3>
+                        <p class="text-xs sm:text-sm text-red-700 mt-1" id="instruction-desc">
+                            กรุณากรอกเลขประจำตัวประชาชน 13 หลัก (สำหรับนักศึกษาสัญชาติไทย) หรือเลขที่หนังสือเดินทาง / Passport (สำหรับนักศึกษาต่างชาติ) เพื่อเข้าสู่ระบบตรวจสอบความถูกต้องของข้อมูลส่วนตัว หากพบข้อมูลไม่ถูกต้อง กรุณาติดต่อห้องทะเบียน BBA
+                        </p>
                     </div>
                 </div>
-                <div class="bg-red-50 text-bba-red px-3 py-1.5 rounded-lg text-xs font-semibold self-start sm:self-center flex items-center gap-1.5">
-                    <i data-lucide="shield-check" class="w-4 h-4"></i>
-                    <span id="secure-text">เชื่อมต่อปลอดภัย (SSL)</span>
+            </div>
+
+            <!-- ฟอร์มค้นหาข้อมูล (Search Form Card) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
+                <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-6 flex items-center gap-2" id="search-title">
+                    <i data-lucide="search" class="text-bba-red"></i>
+                    ระบุตัวตนเพื่อตรวจสอบข้อมูล
+                </h2>
+
+                <!-- แถบเลือกสัญชาติ (ไทย / ต่างชาติ) -->
+                <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl mb-6">
+                    <button type="button" id="tab-thai" onclick="switchTab('thai')" class="py-2.5 px-4 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 bg-white text-bba-red shadow-sm">
+                        🇹🇭 นักศึกษาสัญชาติไทย
+                    </button>
+                    <button type="button" id="tab-inter" onclick="switchTab('inter')" class="py-2.5 px-4 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-800">
+                        🌐 International Student
+                    </button>
+                </div>
+
+                <form id="search-form" onsubmit="handleSearch(event)">
+                    <!-- ช่องกรอกข้อมูลสำหรับนักเรียนไทย -->
+                    <div id="input-thai-group" class="space-y-2">
+                        <label for="id-card" class="block text-sm font-semibold text-slate-700" id="label-idcard">เลขประจำตัวประชาชน 13 หลัก</label>
+                        <div class="relative">
+                            <input type="text" id="id-card" maxlength="13" placeholder="เช่น 1100600515106" 
+                                class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-red-400 outline-none transition-all text-base tracking-widest"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <i data-lucide="credit-card" class="absolute left-3.5 top-3.5 text-slate-400 w-5 h-5"></i>
+                        </div>
+                        <p class="text-xs text-slate-500" id="help-idcard">ใส่เฉพาะตัวเลข 13 หลักเท่านั้น ไม่ต้องเว้นวรรคหรือมีเครื่องหมายขีด (-)</p>
+                    </div>
+
+                    <!-- ช่องกรอกข้อมูลสำหรับนักเรียนต่างชาติ (ซ่อนไว้เริ่มต้น) -->
+                    <div id="input-inter-group" class="space-y-2 hidden">
+                        <label for="passport" class="block text-sm font-semibold text-slate-700" id="label-passport">เลขที่หนังสือเดินทาง (Passport Number)</label>
+                        <div class="relative">
+                            <input type="text" id="passport" placeholder="e.g. AA1234567" 
+                                class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-red-400 outline-none transition-all text-base tracking-wider uppercase">
+                            <i data-lucide="globe" class="absolute left-3.5 top-3.5 text-slate-400 w-5 h-5"></i>
+                        </div>
+                        <p class="text-xs text-slate-500" id="help-passport">กรอกรหัสตัวอักษรภาษาอังกฤษและตัวเลขตามปรากฏในพาสปอร์ต</p>
+                    </div>
+
+                    <div class="mt-6">
+                        <button type="submit" id="btn-submit-search" class="w-full bg-bba-red hover:bg-bba-red text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-base">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                            <span id="btn-search-text">ค้นหาข้อมูลส่วนตัว</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- หน้าต่างแจ้งเตือนข้อผิดพลาด (ซ่อนอยู่) -->
+            <div id="error-message" class="hidden bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-4 flex gap-3 items-center">
+                <i data-lucide="alert-circle" class="w-6 h-6 text-rose-600 shrink-0"></i>
+                <div>
+                    <h4 class="font-bold text-sm sm:text-base" id="error-title">ไม่พบข้อมูลในระบบ</h4>
+                    <p id="error-text" class="text-xs sm:text-sm mt-0.5">กรุณาตรวจสอบเลขที่กรอกอีกครั้ง หรือติดต่อฝ่ายทะเบียน</p>
                 </div>
             </div>
 
-            <!-- รายละเอียดข้อมูลนักเรียน (แสดงเฉพาะ 3 ข้อมูลหลักตามเงื่อนไขเพื่อความเป็นส่วนตัว) -->
-            <div class="max-w-xl mx-auto bg-slate-50 rounded-2xl p-6 sm:p-8 border border-slate-150 space-y-4">
+            <!-- พื้นที่แสดงผลลัพธ์ข้อมูลนักเรียน (ซ่อนไว้เริ่มต้น) -->
+            <div id="result-card" class="hidden bg-white rounded-2xl shadow-md border border-red-200 p-6 sm:p-8 space-y-6">
                 
-                <!-- 1. รหัสนักศึกษา -->
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-3 border-b border-dashed border-slate-200 gap-1">
-                    <span class="text-slate-500 text-sm font-medium flex items-center gap-2">
-                        <i data-lucide="hash" class="w-4 h-4 text-bba-red"></i>
-                        <span id="lbl-student-id">เลขประจำตัวนักศึกษา</span>
-                    </span>
-                    <span id="res-student-id" class="font-bold text-slate-800 text-lg">-</span>
+                <!-- ส่วนสถานะการตรวจสอบ -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 bg-red-100 text-bba-red rounded-full">
+                            <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                        </span>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800" id="result-title">พบข้อมูลประวัตินักศึกษา</h2>
+                            <p class="text-xs text-slate-500" id="result-subtitle">กรุณาตรวจสอบความถูกต้องของข้อมูลทุกช่องด้านล่าง</p>
+                        </div>
+                    </div>
+                    <div class="bg-red-50 text-bba-red px-3 py-1.5 rounded-lg text-xs font-semibold self-start sm:self-center flex items-center gap-1.5">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span id="secure-text">เชื่อมต่อปลอดภัย (SSL)</span>
+                    </div>
                 </div>
 
-                <!-- 2. ชื่อ-นามสกุล -->
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-3 border-b border-dashed border-slate-200 gap-1">
-                    <span class="text-slate-500 text-sm font-medium flex items-center gap-2">
-                        <i data-lucide="user" class="w-4 h-4 text-bba-red"></i>
-                        <span id="lbl-fullname">ชื่อ-นามสกุล</span>
-                    </span>
-                    <span id="res-fullname" class="font-bold text-slate-800 text-lg">-</span>
+                <!-- รายละเอียดข้อมูลนักเรียน (แสดงเฉพาะ 3 ข้อมูลหลัก) -->
+                <div class="max-w-xl mx-auto bg-slate-50 rounded-2xl p-6 sm:p-8 border border-slate-150 space-y-4">
+                    
+                    <!-- 1. รหัสนักศึกษา -->
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-3 border-b border-dashed border-slate-200 gap-1">
+                        <span class="text-slate-500 text-sm font-medium flex items-center gap-2">
+                            <i data-lucide="hash" class="w-4 h-4 text-bba-red"></i>
+                            <span id="lbl-student-id">เลขประจำตัวนักศึกษา</span>
+                        </span>
+                        <span id="res-student-id" class="font-bold text-slate-800 text-lg">-</span>
+                    </div>
+
+                    <!-- 2. ชื่อ-นามสกุล -->
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-3 border-b border-dashed border-slate-200 gap-1">
+                        <span class="text-slate-500 text-sm font-medium flex items-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4 text-bba-red"></i>
+                            <span id="lbl-fullname">ชื่อ-นามสกุล</span>
+                        </span>
+                        <span id="res-fullname" class="font-bold text-slate-800 text-lg">-</span>
+                    </div>
+
+                    <!-- 3. วันเดือนปีเกิด -->
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-3 border-b border-dashed border-slate-200 gap-1">
+                        <span class="text-slate-500 text-sm font-medium flex items-center gap-2">
+                            <i data-lucide="calendar" class="w-4 h-4 text-bba-red"></i>
+                            <span id="lbl-birthdate">วัน/เดือน/ปีเกิด</span>
+                        </span>
+                        <span id="res-birthdate" class="font-bold text-slate-800 text-lg">-</span>
+                    </div>
+
                 </div>
 
-                <!-- 3. วันเดือนปีเกิด -->
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-3 border-b border-dashed border-slate-200 gap-1">
-                    <span class="text-slate-500 text-sm font-medium flex items-center gap-2">
-                        <i data-lucide="calendar" class="w-4 h-4 text-bba-red"></i>
-                        <span id="lbl-birthdate">วัน/เดือน/ปีเกิด</span>
-                    </span>
-                    <span id="res-birthdate" class="font-bold text-slate-800 text-lg">-</span>
+                <!-- ปุ่มการยืนยันข้อมูลแบบ Interactive -->
+                <div class="mt-8 bg-slate-50 rounded-xl p-5 border border-slate-200">
+                    <p class="text-sm font-bold text-slate-700 mb-3 text-center" id="confirm-title">ผลการตรวจสอบข้อมูลของท่าน</p>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button onclick="submitConfirmation(true)" id="btn-confirm-correct" class="flex-grow-2 flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4"></i> <span id="btn-correct">ข้อมูลถูกต้องทั้งหมด</span>
+                        </button>
+                        <button onclick="submitConfirmation(false)" id="btn-confirm-incorrect" class="flex-grow-1 flex-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="x" class="w-4 h-4"></i> <span id="btn-incorrect">ข้อมูลไม่ถูกต้อง / ต้องการแก้ไข</span>
+                        </button>
+                    </div>
                 </div>
+
+                <!-- ส่วนผลลัพธ์การยืนยัน (ซ่อนอยู่) -->
+                <div id="confirm-status" class="hidden text-center p-4 rounded-lg text-sm font-medium"></div>
 
             </div>
+        </div>
 
-            <!-- แบบประเมิน/ยืนยันความถูกต้องแบบ Interactive -->
-            <div class="mt-8 bg-slate-50 rounded-xl p-5 border border-slate-200">
-                <p class="text-sm font-bold text-slate-700 mb-3 text-center" id="confirm-title">ผลการตรวจสอบข้อมูลของท่าน</p>
-                <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                    <button onclick="confirmData(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition-all flex items-center justify-center gap-2">
-                        <i data-lucide="check" class="w-4 h-4"></i> <span id="btn-correct">ข้อมูลถูกต้องทั้งหมด</span>
+        <!-- หน้าที่สอง (ฟอร์มส่งประวัติการขอแก้ไขข้อมูลและแนบเอกสารหลักฐาน) - ซ่อนไว้เริ่มต้น -->
+        <div id="page-edit" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-md border border-red-200 p-6 sm:p-8">
+                <div class="flex items-center gap-3 border-b pb-4 mb-6">
+                    <button onclick="backToSearchPage()" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
                     </button>
-                    <button onclick="confirmData(false)" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition-all flex items-center justify-center gap-2">
-                        <i data-lucide="x" class="w-4 h-4"></i> <span id="btn-incorrect">ข้อมูลไม่ถูกต้อง / ต้องการแก้ไข</span>
-                    </button>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-850" id="form-edit-title">ยื่นคำร้องขอแก้ไขข้อมูลส่วนตัว</h2>
+                        <p class="text-xs text-slate-500" id="form-edit-subtitle">กรอกข้อมูลส่วนที่ถูกต้องเพื่อความรวดเร็วในการประสานงาน</p>
+                    </div>
                 </div>
+
+                <form id="edit-form" onsubmit="submitCorrectionForm(event)" class="space-y-5">
+                    <!-- แสดงข้อมูลของนักศึกษาเดิมประกอบการยื่นแก้ไข -->
+                    <div class="bg-slate-100 p-4 rounded-xl text-xs space-y-1.5 border border-slate-200 text-slate-600">
+                        <p><strong id="lbl-edit-id">ค้นหาโดย ID / พาสปอร์ต:</strong> <span id="edit-orig-id" class="font-mono text-slate-800 font-bold">-</span></p>
+                        <p><strong id="lbl-edit-code">รหัสนักศึกษาปัจจุบัน:</strong> <span id="edit-orig-stdid" class="font-mono text-slate-800 font-bold">-</span></p>
+                    </div>
+
+                    <!-- 1. ช่องแก้ไขรหัสนักศึกษา -->
+                    <div class="space-y-1">
+                        <label for="edit-student-id" class="block text-sm font-semibold text-slate-700" id="lbl-correct-stdid">1. รหัสนักศึกษาที่ถูกต้อง (ระบุหากต้องการแก้ไข)</label>
+                        <input type="text" id="edit-student-id" placeholder="กรอกรหัสนักศึกษาใหม่ เช่น 6902640000" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-red-400 outline-none text-sm">
+                    </div>
+
+                    <!-- 2. ช่องแก้ไขชื่อ-นามสกุล -->
+                    <div class="space-y-1">
+                        <label for="edit-fullname" class="block text-sm font-semibold text-slate-700" id="lbl-correct-fullname">2. ชื่อ-นามสกุล ที่ถูกต้อง (ระบุหากต้องการแก้ไข)</label>
+                        <input type="text" id="edit-fullname" placeholder="กรอกชื่อ-นามสกุล ภาษาอังกฤษที่ถูกต้อง" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-red-400 outline-none text-sm">
+                    </div>
+
+                    <!-- 3. ช่องแก้ไขวันเกิด -->
+                    <div class="space-y-1">
+                        <label for="edit-birthdate" class="block text-sm font-semibold text-slate-700" id="lbl-correct-birthdate">3. วันเดือนปีเกิด ที่ถูกต้อง (ระบุหากต้องการแก้ไข)</label>
+                        <input type="text" id="edit-birthdate" placeholder="เช่น 22 January 2006" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-red-400 outline-none text-sm">
+                    </div>
+
+                    <!-- 4. ช่องอัปโหลดไฟล์หลักฐาน (จำกัดขนาด รูปภาพ/PDF) -->
+                    <div class="space-y-1">
+                        <label class="block text-sm font-semibold text-slate-700 flex items-center gap-1.5" id="lbl-upload-file">
+                            4. อัปโหลดสำเนาหลักฐานยืนยันตัวตน <span class="text-red-500 font-bold">*</span>
+                        </label>
+                        <p class="text-xs text-slate-500" id="help-upload-file">กรุณาแนบภาพถ่ายบัตรประชาชน (สำหรับคนไทย) หรือหน้าหนังสือเดินทาง (สำหรับต่างชาติ) เพื่อเป็นหลักฐานให้งานทะเบียนตรวจสอบ</p>
+                        <div class="mt-2 border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition-all cursor-pointer relative" id="drop-zone">
+                            <input type="file" id="evidence-file" accept="image/*, application/pdf" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleFileSelect(event)">
+                            <div class="space-y-1" id="upload-preview">
+                                <i data-lucide="image" class="w-8 h-8 text-slate-400 mx-auto"></i>
+                                <p class="text-xs font-semibold text-slate-600" id="txt-choose-file">กดเพื่อเลือกไฟล์ภาพ หรือลากรูปมาวางที่นี่</p>
+                                <p class="text-[10px] text-slate-400">ขนาดไฟล์ไม่เกิน 5MB (JPG, PNG, PDF)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ปุ่มส่งและยกเลิก -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                        <button type="button" onclick="backToSearchPage()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl text-sm transition-all text-center">
+                            ยกเลิก
+                        </button>
+                        <button type="submit" id="btn-submit-edit" class="flex-1 bg-bba-red hover-bg-bba-red text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span id="btn-send-edit-text">ส่งข้อมูลขอแก้ไข</span>
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <!-- ส่วนผลลัพธ์การยืนยัน (ซ่อนอยู่) -->
-            <div id="confirm-status" class="hidden text-center p-4 rounded-lg text-sm font-medium"></div>
-
         </div>
 
     </main>
@@ -212,14 +283,16 @@
     <!-- ส่วนของ JavaScript (ตัวควบคุมระบบทั้งหมด) -->
     <script>
         // =========================================================================
-        // ⚠️ ขั้นตอนสำคัญ: นำลิงก์ Web App URL ที่ได้จาก Google Apps Script มาวางแทนที่ตรงนี้ครับ ⚠️
+        // ⚠️ ลิงก์ Web App URL ที่เชื่อมต่อไปยัง Google Sheets ของคุณ ⚠️
         // =========================================================================
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyWduHHidW9nOXbMbo5AteF0jhQuWku9f5D60CMbv5Noby_inOEZbwPBu8NvFu-7CdFUg/exec";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzhDe4aSvoKUu-EsGfKpOFj0XiR9ccj1x4-uAZ8zwITKzWGPO9MxFT2to8B-jXyt5o9uw/exec";
 
         // สถานะของแอพปัจจุบัน
         let currentLang = 'th';
         let currentType = 'thai';
         let activeStudentData = null; 
+        let base64File = "";          // เก็บไฟล์ Base64 เพื่ออัพโหลด
+        let base64FileName = "";      // เก็บชื่อไฟล์
 
         // ระบบสลับภาษา (Dictionary for Language Switch)
         const i18n = {
@@ -252,8 +325,23 @@
                 alertEmptyPassport: "กรุณากรอกเลขที่พาสสปอร์ตให้ถูกต้อง",
                 alertNotFound: "ไม่พบข้อมูลนักศึกษาใน Google Sheets กรุณาตรวจสอบเลขที่กรอกใหม่อีกครั้ง หรือติดต่อฝ่ายทะเบียนหลักสูตร BBA",
                 saveSuccess: "บันทึกข้อมูลความถูกต้องสำเร็จ ขอบคุณสำหรับการตรวจสอบข้อมูลของคุณค่ะ/ครับ",
-                saveError: "ระบบได้รับข้อมูลเรียบร้อยแล้ว กรุณาติดต่อขอแก้ไขเอกสารที่สำนักงานหลักสูตร BBA ในเวลาราชการ",
-                connectionError: "เกิดข้อผิดพลาดในการติดต่อฐานข้อมูล โปรดลองเปิดเว็บใหม่อีกครั้ง หรือเช็คสิทธิ์การตั้งค่า Deployment ใน Google Sheet"
+                saveError: "ระบบได้รับข้อมูลเรียบร้อยแล้ว กำลังนำทางไปยังแบบยื่นเรื่องขอแก้ไขข้อมูล...",
+                connectionError: "เกิดข้อผิดพลาดในการติดต่อฐานข้อมูล โปรดลองเปิดเว็บใหม่อีกครั้ง หรือเช็คสิทธิ์การตั้งค่า Deployment ใน Google Sheet",
+                
+                // คำแปลเพิ่มเติมสำหรับหน้าต่างยื่นเรื่องแก้ไข
+                formEditTitle: "ยื่นคำร้องขอแก้ไขข้อมูลส่วนตัว",
+                formEditSubtitle: "กรอกข้อมูลส่วนที่ถูกต้องเพื่อความรวดเร็วในการประสานงาน",
+                lblEditId: "ค้นหาโดย ID / พาสปอร์ต:",
+                lblEditCode: "รหัสนักศึกษาปัจจุบัน:",
+                lblCorrectStdid: "1. รหัสนักศึกษาที่ถูกต้อง (ระบุหากต้องการแก้ไข)",
+                lblCorrectFullname: "2. ชื่อ-นามสกุล ที่ถูกต้อง (ระบุหากต้องการแก้ไข)",
+                lblCorrectBirthdate: "3. วันเดือนปีเกิด ที่ถูกต้อง (ระบุหากต้องการแก้ไข)",
+                lblUploadFile: "4. อัปโหลดสำเนาหลักฐานยืนยันตัวตน (บังคับแนบ)",
+                helpUploadFile: "กรุณาแนบภาพถ่ายบัตรประชาชน (สำหรับคนไทย) หรือหน้าหนังสือเดินทาง (สำหรับต่างชาติ) เพื่อเป็นหลักฐานให้งานทะเบียนตรวจสอบ",
+                txtChooseFile: "กดเพื่อเลือกไฟล์ภาพ หรือลากรูปมาวางที่นี่",
+                btnSendEditText: "ส่งข้อมูลขอแก้ไข",
+                btnSendingEditText: "กำลังบันทึกข้อมูลและอัปโหลดหลักฐาน...",
+                toastEditSuccess: "ส่งเรื่องขอแก้ไขข้อมูลเรียบร้อยแล้ว! งานทะเบียนจะตรวจสอบและอัปเดตข้อมูลบนระบบโดยเร็ว"
             },
             en: {
                 headerSub: "BBA Online Student Information System",
@@ -284,8 +372,23 @@
                 alertEmptyPassport: "Please enter a valid Passport Number.",
                 alertNotFound: "Student record not found in Google Sheets. Please verify your identification number or contact the BBA office.",
                 saveSuccess: "Confirmation recorded successfully. Thank you for verifying your profile!",
-                saveError: "Request received. Please contact the BBA Program Office during office hours to submit correction forms.",
-                connectionError: "Failed to connect to database. Please refresh or verify the Deployment settings on Google Sheets."
+                saveError: "Profile marked as incorrect. Navigating you to the edit submission form...",
+                connectionError: "Failed to connect to database. Please refresh or verify the Deployment settings on Google Sheets.",
+                
+                // คำแปลเพิ่มเติมสำหรับหน้าต่างยื่นเรื่องแก้ไข (EN)
+                formEditTitle: "Submit Profile Correction Form",
+                formEditSubtitle: "Provide correct details and upload evidence forทะเบียน review",
+                lblEditId: "Search ID / Passport ID:",
+                lblEditCode: "Current Student ID:",
+                lblCorrectStdid: "1. Correct Student ID (leave blank if correct)",
+                lblCorrectFullname: "2. Correct Full Name (leave blank if correct)",
+                lblCorrectBirthdate: "3. Correct Date of Birth (leave blank if correct)",
+                lblUploadFile: "4. Upload Proof / Supporting Document (Required)",
+                helpUploadFile: "Please upload a photo of your National ID (Thai) or Passport (International) for identity verification",
+                txtChooseFile: "Click to select file or drag & drop here",
+                btnSendEditText: "Submit Correction",
+                btnSendingEditText: "Uploading details and evidence...",
+                toastEditSuccess: "Correction request submitted successfully! Registry staff will review and update your record shortly."
             }
         };
 
@@ -353,6 +456,30 @@
             document.getElementById('btn-incorrect').innerText = i18n[lang].btnIncorrect;
             document.getElementById('footer-pdpa').innerText = i18n[lang].footerPdpa;
 
+            // แปลหน้ายื่นคำร้องขอแก้ไขข้อมูล
+            document.getElementById('form-edit-title').innerText = i18n[lang].formEditTitle;
+            document.getElementById('form-edit-subtitle').innerText = i18n[lang].formEditSubtitle;
+            document.getElementById('lbl-edit-id').innerText = i18n[lang].lblEditId;
+            document.getElementById('lbl-edit-code').innerText = i18n[lang].lblEditCode;
+            document.getElementById('lbl-correct-stdid').innerText = i18n[lang].lblCorrectStdid;
+            document.getElementById('lbl-correct-fullname').innerText = i18n[lang].lblCorrectFullname;
+            document.getElementById('lbl-correct-birthdate').innerText = i18n[lang].lblCorrectBirthdate;
+            document.getElementById('lbl-upload-file').innerText = i18n[lang].lblUploadFile;
+            document.getElementById('help-upload-file').innerText = i18n[lang].helpUploadFile;
+            
+            // หากปุ่มส่งฟอร์มกำลังทำงานอยู่
+            const sendEditBtn = document.getElementById('btn-submit-edit');
+            if (sendEditBtn.disabled) {
+                document.getElementById('btn-send-edit-text').innerText = i18n[lang].btnSendingEditText;
+            } else {
+                document.getElementById('btn-send-edit-text').innerText = i18n[lang].btnSendEditText;
+            }
+
+            // จัดการพรีวิวเลือกไฟล์อัปโหลด
+            if (!base64File) {
+                document.getElementById('txt-choose-file').innerText = i18n[lang].txtChooseFile;
+            }
+
             lucide.createIcons();
 
             if (activeStudentData) {
@@ -417,10 +544,8 @@
             document.getElementById('btn-search-text').innerText = i18n[currentLang].btnSearchingText;
 
             try {
-                // ส่งคำขอค้นหาไปยัง Google Apps Script (ดึงแบบปลอดภัย)
-                const fetchUrl = `${GAS_WEB_APP_URL}?studentIdCard=${encodeURIComponent(queryValue)}`;
+                const fetchUrl = `${GAS_WEB_APP_URL}?studentIdCard=${encodeURIComponent(queryValue)}&action=search`;
                 
-                // ใช้ fetch ดึงข้อมูลพร้อมกำหนดโหมด redirect เพื่อติดตามโครงสร้างของ Google Apps Script
                 const response = await fetch(fetchUrl, {
                     method: 'GET',
                     mode: 'cors',
@@ -464,29 +589,212 @@
             resultCard.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // บันทึกยืนยันความถูกต้องนักศึกษา
-        function confirmData(isCorrect) {
+        // ฟังก์ชันอัปเดตสถานะความถูกต้องเข้า Google Sheets
+        async function submitConfirmation(isCorrect) {
+            if (!activeStudentData) return;
+
             const confirmStatus = document.getElementById('confirm-status');
             confirmStatus.classList.remove('hidden');
+            
+            // ปิดการคลิกปุ่มซ้ำระหว่างบันทึก
+            const btnCorrect = document.getElementById('btn-confirm-correct');
+            const btnIncorrect = document.getElementById('btn-confirm-incorrect');
+            btnCorrect.disabled = true;
+            btnIncorrect.disabled = true;
 
-            if (isCorrect) {
-                confirmStatus.className = "mt-4 text-center p-4 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200";
-                confirmStatus.innerHTML = `
-                    <div class="flex items-center justify-center gap-2">
-                        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
-                        <span>${i18n[currentLang].saveSuccess}</span>
-                    </div>
-                `;
-            } else {
+            confirmStatus.className = "mt-4 text-center p-4 rounded-xl text-sm font-medium bg-blue-50 text-blue-850 border border-blue-200 animate-pulse";
+            confirmStatus.innerHTML = "กำลังบันทึกคำตอบลงระบบบัญชีรายชื่อกลาง...";
+
+            try {
+                // ส่งค่าสถานะความถูกต้องกลับไปยัง Google Apps Script
+                const postUrl = `${GAS_WEB_APP_URL}`;
+                const payload = {
+                    action: "confirmStatus",
+                    id: activeStudentData.id,
+                    status: isCorrect ? "ถูกต้อง" : "ไม่ถูกต้อง"
+                };
+
+                const response = await fetch(postUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // ใช้ no-cors สำหรับคำขอแบบทางเดียวเพื่อหลีกเลี่ยง CORS ในโพสต์ง่ายๆ
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // ตรวจคำตอบและการนำทาง
+                if (isCorrect) {
+                    confirmStatus.className = "mt-4 text-center p-4 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200";
+                    confirmStatus.innerHTML = `
+                        <div class="flex items-center justify-center gap-2">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+                            <span>${i18n[currentLang].saveSuccess}</span>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                } else {
+                    confirmStatus.className = "mt-4 text-center p-4 rounded-xl text-sm font-medium bg-rose-50 text-rose-800 border border-rose-200";
+                    confirmStatus.innerHTML = `
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="animate-spin inline-block w-4 h-4 border-2 border-rose-600 border-t-transparent rounded-full mr-1"></span>
+                            <span>${i18n[currentLang].saveError}</span>
+                        </div>
+                    `;
+                    
+                    // หน่วงเวลา 2.5 วินาทีแล้วเปิดหน้านำทางไปกรอกแบบฟอร์มขอแก้ข้อมูลทันที
+                    setTimeout(() => {
+                        navigateToEditPage();
+                    }, 2500);
+                }
+
+            } catch (error) {
+                console.error("Error submitting confirmation: ", error);
                 confirmStatus.className = "mt-4 text-center p-4 rounded-xl text-sm font-medium bg-rose-50 text-rose-800 border border-rose-200";
-                confirmStatus.innerHTML = `
-                    <div class="flex items-center justify-center gap-2">
-                        <i data-lucide="info" class="w-5 h-5 text-rose-600"></i>
-                        <span>${i18n[currentLang].saveError}</span>
-                    </div>
-                `;
+                confirmStatus.innerHTML = i18n[currentLang].connectionError;
+            } finally {
+                btnCorrect.disabled = false;
+                btnIncorrect.disabled = false;
             }
+        }
+
+        // ฟังก์ชันนำทางไปยังหน้ายื่นเรื่องขอแก้ไขข้อมูล
+        function navigateToEditPage() {
+            if (!activeStudentData) return;
+
+            // คัดลอกข้อมูลปัจจุบันของนักศึกษาไปพรีเซนต์ในหน้าฟอร์มแก้ตัว
+            document.getElementById('edit-orig-id').innerText = activeStudentData.id;
+            document.getElementById('edit-orig-stdid').innerText = activeStudentData.studentId;
+
+            // พรีฟิลด์ค่าเดิมลงช่องกรอกข้อความเพื่อลดการพิมพ์
+            document.getElementById('edit-student-id').value = activeStudentData.studentId;
+            document.getElementById('edit-fullname').value = activeStudentData.fullname;
+            document.getElementById('edit-birthdate').value = activeStudentData.birthdate;
+
+            // สลับการแสดงผลหน้าเพจ
+            document.getElementById('page-search').classList.add('hidden');
+            document.getElementById('page-edit').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ย้อนกลับหน้าค้นหา
+        function backToSearchPage() {
+            document.getElementById('page-edit').classList.add('hidden');
+            document.getElementById('page-search').classList.remove('hidden');
+            
+            // เคลียร์ค่าฟอร์มแก้ตัวและไฟล์
+            document.getElementById('edit-form').reset();
+            clearFileSelect();
+            hideResult();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // จัดการอัดภาพเป็นข้อความ Base64 เพื่อส่งอัพโหลดขึ้น Google Drive ของเจ้าหน้าที่
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // เช็คขนาดไฟล์ไม่ให้เกิน 5MB เพื่อไม่ให้ Google App script ล่ม
+            if (file.size > 5 * 1024 * 1024) {
+                alert(currentLang === 'th' ? "ขนาดไฟล์ต้องไม่เกิน 5MB ครับ" : "File size must not exceed 5MB.");
+                clearFileSelect();
+                return;
+            }
+
+            base64FileName = file.name;
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                base64File = e.target.result.split(',')[1]; // ดึงข้อความ Base64 แท้จริง
+                
+                // แสดงพรีวิวว่าเพิ่มสำเร็จ
+                const previewZone = document.getElementById('drop-zone');
+                previewZone.className = "mt-2 border-2 border-dashed border-emerald-400 bg-emerald-50 rounded-xl p-4 text-center relative cursor-pointer";
+                
+                document.getElementById('upload-preview').innerHTML = `
+                    <i data-lucide="file-check" class="w-8 h-8 text-emerald-600 mx-auto animate-bounce"></i>
+                    <p class="text-xs font-bold text-emerald-800">${file.name}</p>
+                    <p class="text-[10px] text-emerald-600">กดทับอีกครั้งหากต้องการเปลี่ยนไฟล์</p>
+                `;
+                lucide.createIcons();
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // ล้างสถานะการเลือกไฟล์
+        function clearFileSelect() {
+            base64File = "";
+            base64FileName = "";
+            document.getElementById('evidence-file').value = "";
+            
+            const dropZone = document.getElementById('drop-zone');
+            dropZone.className = "mt-2 border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition-all cursor-pointer relative";
+            
+            document.getElementById('upload-preview').innerHTML = `
+                <i data-lucide="image" class="w-8 h-8 text-slate-400 mx-auto"></i>
+                <p class="text-xs font-semibold text-slate-600">${i18n[currentLang].txtChooseFile}</p>
+                <p class="text-[10px] text-slate-400">ขนาดไฟล์ไม่เกิน 5MB (JPG, PNG, PDF)</p>
+            `;
             lucide.createIcons();
+        }
+
+        // ส่งแบบฟอร์มขอแก้ไขข้อมูลทั้งหมดขึ้นสู่ชีตยื่นแก้ไขของ Google Sheets
+        async function submitCorrectionForm(event) {
+            event.preventDefault();
+            
+            if (!activeStudentData) return;
+            if (!base64File) {
+                alert(currentLang === 'th' ? "กรุณาแนบภาพถ่ายสำเนาหลักฐานยืนยันตัวตนด้วยครับ" : "Supporting document is required.");
+                return;
+            }
+
+            const sendEditBtn = document.getElementById('btn-submit-edit');
+            const originalText = sendEditBtn.innerHTML;
+            sendEditBtn.disabled = true;
+            document.getElementById('btn-send-edit-text').innerText = i18n[currentLang].btnSendingEditText;
+
+            try {
+                // จัดเตรียม Payload เพื่อส่งคำขอแก้ไข
+                const payload = {
+                    action: "submitCorrection",
+                    originalId: activeStudentData.id,
+                    originalStudentId: activeStudentData.studentId,
+                    originalFullname: activeStudentData.fullname,
+                    originalBirthdate: activeStudentData.birthdate,
+                    
+                    // ข้อมูลใหม่ที่ต้องการแก้ตัว
+                    correctStudentId: document.getElementById('edit-student-id').value.trim(),
+                    correctFullname: document.getElementById('edit-fullname').value.trim(),
+                    correctBirthdate: document.getElementById('edit-birthdate').value.trim(),
+                    
+                    // ไฟล์หลักฐาน
+                    fileData: base64File,
+                    fileName: base64FileName
+                };
+
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // ใช้ no-cors สำหรับส่งโพสต์ทางเดียวไปยัง Google Apps Script
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // แจ้งเตือนส่งข้อมูลสำเร็จ
+                alert(i18n[currentLang].toastEditSuccess);
+                backToSearchPage();
+
+            } catch (error) {
+                console.error("Error submitting correction form: ", error);
+                alert(i18n[currentLang].connectionError);
+            } finally {
+                sendEditBtn.disabled = false;
+                sendEditBtn.innerHTML = originalText;
+                lucide.createIcons();
+            }
         }
 
         function hideResult() {

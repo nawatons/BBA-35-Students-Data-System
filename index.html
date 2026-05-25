@@ -200,15 +200,15 @@
                 <div id="confirm-status" class="hidden text-center p-4 rounded-lg text-sm font-medium"></div>
 
                 <!-- ส่วนของการไปทำแบบสำรวจหลังจากยืนยันข้อมูลถูกต้อง (ซ่อนไว้ก่อน) -->
-                <div id="survey-action-zone" class="hidden text-center p-6 bg-emerald-50 rounded-2xl border border-emerald-200 space-y-4 animate-fade-in">
+                <div id="survey-action-zone" class="hidden text-center p-6 bg-emerald-50 rounded-2xl border border-emerald-200 space-y-4">
                     <div class="flex justify-center">
                         <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
                             <i data-lucide="form-input" class="w-8 h-8"></i>
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <h3 class="text-lg font-bold text-emerald-900" id="survey-action-title">ขั้นตอนถัดไป: เลือกสาขาวิชาเอกและวิชาโท</h3>
-                        <p class="text-sm text-emerald-700" id="survey-action-desc">ข้อมูลของท่านได้รับการยืนยันเรียบร้อยแล้ว กรุณาทำการเลือกวิชาเอก (Major) และวิชาโท (Minor) ที่ต้องการศึกษา</p>
+                        <h3 class="text-lg font-bold text-emerald-900" id="survey-action-title">ขั้นตอนถัดไป: เลือกแผนสาขาวิชาเรียน</h3>
+                        <p class="text-sm text-emerald-700" id="survey-action-desc">ข้อมูลของท่านได้รับการยืนยันเรียบร้อยแล้ว กรุณาทำแบบสำรวจเลือกสาขาวิชาเอก (Major) หรือวิชาเอกคู่ (Double Major) และวิชาโท (Minor)</p>
                     </div>
                     <button onclick="navigateToSurveyPage()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md inline-flex items-center gap-2 text-base">
                         <span>ทำแบบสำรวจวิชาเลือก</span>
@@ -287,8 +287,8 @@
             </div>
         </div>
 
-        <!-- หน้าที่สาม (แบบสำรวจการเลือกวิชาเอก Major & วิชาโท Minor) - ซ่อนไว้เริ่มต้น -->
-        <div id="page-survey" class="hidden space-y-6 animate-fade-in">
+        <!-- หน้าที่สาม (แบบสำรวจการเลือกวิชาเอก Major, วิชาเอกคู่ Double Major & วิชาโท Minor) - ซ่อนไว้เริ่มต้น -->
+        <div id="page-survey" class="hidden space-y-6">
             <div class="bg-white rounded-2xl shadow-md border border-emerald-200 p-6 sm:p-8">
                 <div class="flex items-center gap-3 border-b pb-4 mb-6">
                     <button onclick="backToSearchPage()" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all">
@@ -296,7 +296,7 @@
                     </button>
                     <div>
                         <h2 class="text-xl font-bold text-slate-800" id="survey-title">แบบสำรวจวิชาเอกและวิชาโท</h2>
-                        <p class="text-xs text-slate-500" id="survey-subtitle">โปรดระบุสาขาวิชาเอกและวิชาโทที่ท่านประสงค์จะเลือกเรียน</p>
+                        <p class="text-xs text-slate-500" id="survey-subtitle">โปรดเลือกประเภทแผนวิชาและสาขาวิชาที่ท่านประสงค์จะเรียน</p>
                     </div>
                 </div>
 
@@ -308,99 +308,179 @@
 
                 <form id="survey-form" onsubmit="submitSurveyForm(event)" class="space-y-6">
                     
-                    <!-- 1. การเลือกวิชาเอก (Major Selection) -->
+                    <!-- ส่วนเลือกประเภทแผนวิชาการเรียน (Single Major / Double Major) -->
                     <div class="space-y-3">
-                        <label class="block text-base font-bold text-slate-800 flex items-center gap-2">
-                            <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
-                            <span id="survey-major-label">วิชาเอกที่คุณต้องการเลือก (Major Option)</span>
+                        <label class="block text-base font-bold text-slate-850 flex items-center gap-2">
+                            <span id="survey-plan-label">ประเภทแผนการเรียนที่ต้องการลงทะเบียน</span>
                             <span class="text-rose-500 font-bold">*</span>
                         </label>
-                        <p class="text-xs text-slate-500 ml-8" id="survey-major-help">กรุณาเลือกสาขาวิชาเอกหลักที่ท่านประสงค์จะเรียนเพียง 1 สาขา</p>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 ml-0 sm:ml-8">
-                            <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer relative" id="major-opt-acc">
-                                <input type="radio" name="major" value="Accounting" required class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <label class="flex items-start gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer" id="plan-opt-single">
+                                <input type="radio" name="survey-plan-type" value="single" checked class="mt-1 w-4 h-4 text-emerald-600 focus:ring-emerald-500" onchange="toggleSurveyPlanType('single')">
                                 <div>
-                                    <span class="font-bold text-slate-800 block text-sm">Accounting</span>
-                                    <span class="text-[10px] text-slate-500 block">สาขาวิชาการบัญชี</span>
+                                    <span class="font-bold text-slate-800 block text-sm" id="lbl-plan-single">วิชาเอกเดี่ยว (+วิชาโท) / Single Major</span>
+                                    <span class="text-xs text-slate-500 block mt-0.5" id="desc-plan-single">เลือก 1 วิชาเอก และสามารถเลือกวิชาโทเพื่อความรู้เพิ่มเติมได้</span>
                                 </div>
                             </label>
 
-                            <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer relative" id="major-opt-fin">
-                                <input type="radio" name="major" value="Finance" required class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
+                            <label class="flex items-start gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer" id="plan-opt-double">
+                                <input type="radio" name="survey-plan-type" value="double" class="mt-1 w-4 h-4 text-emerald-600 focus:ring-emerald-500" onchange="toggleSurveyPlanType('double')">
                                 <div>
-                                    <span class="font-bold text-slate-800 block text-sm">Finance</span>
-                                    <span class="text-[10px] text-slate-500 block">สาขาวิชาการเงิน</span>
-                                </div>
-                            </label>
-
-                            <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer relative" id="major-opt-mkt">
-                                <input type="radio" name="major" value="Marketing" required class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
-                                <div>
-                                    <span class="font-bold text-slate-800 block text-sm">Marketing</span>
-                                    <span class="text-[10px] text-slate-500 block">สาขาวิชาการตลาด</span>
+                                    <span class="font-bold text-slate-800 block text-sm" id="lbl-plan-double">วิชาเอกคู่ / Double Major</span>
+                                    <span class="text-xs text-slate-500 block mt-0.5" id="desc-plan-double">ศึกษา 2 วิชาเอกหลักควบคู่กัน (ไม่สามารถเลือกวิชาโทซ้อนทับได้อีก)</span>
                                 </div>
                             </label>
                         </div>
                     </div>
 
-                    <!-- 2. การเลือกวิชาโท (Minor Selection) -->
-                    <div class="space-y-3 pt-4 border-t border-slate-100">
-                        <label class="block text-base font-bold text-slate-800 flex items-center gap-2">
-                            <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
-                            <span id="survey-minor-label">วิชาโทที่คุณต้องการเลือก (Minor Option)</span>
-                            <span class="text-rose-500 font-bold">*</span>
-                        </label>
-                        <p class="text-xs text-slate-500 ml-8" id="survey-minor-help">กรุณาเลือกวิชาโท หรือเลือก None หากท่านไม่ต้องการเรียนวิชาโท (ไม่สามารถซ้ำกับวิชาเอกได้)</p>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 ml-0 sm:ml-8">
-                            <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="minor-opt-acc">
-                                <input type="radio" name="minor" value="Accounting" required class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
-                                <div>
-                                    <span class="font-bold text-slate-800 block text-sm">Accounting</span>
-                                    <span class="text-[10px] text-slate-500 block">สาขาวิชาการบัญชี</span>
-                                </div>
+                    <!-- 1. ส่วนเลือกวิชาเอกเดี่ยว (แสดงเมื่อเลือก Single Major) -->
+                    <div id="survey-single-major-section" class="space-y-6 pt-4 border-t border-slate-100">
+                        <!-- เลือกวิชาเอกหลัก -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-bold text-slate-800 flex items-center gap-2">
+                                <span class="bg-emerald-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">1</span>
+                                <span id="survey-major-label">วิชาเอกหลักที่คุณต้องการเลือก (Major Option)</span>
                             </label>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 ml-0 sm:ml-7">
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="major-opt-acc">
+                                    <input type="radio" name="major" value="Accounting" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">Accounting</span>
+                                        <span class="text-[10px] text-slate-500 block">สาขาวิชาการบัญชี</span>
+                                    </div>
+                                </label>
 
-                            <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="minor-opt-fin">
-                                <input type="radio" name="minor" value="Finance" required class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
-                                <div>
-                                    <span class="font-bold text-slate-800 block text-sm">Finance</span>
-                                    <span class="text-[10px] text-slate-500 block">สาขาวิชาการเงิน</span>
-                                </div>
-                            </label>
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="major-opt-fin">
+                                    <input type="radio" name="major" value="Finance" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">Finance</span>
+                                        <span class="text-[10px] text-slate-500 block">สาขาวิชาการเงิน</span>
+                                    </div>
+                                </label>
 
-                            <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="minor-opt-mkt">
-                                <input type="radio" name="minor" value="Marketing" required class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
-                                <div>
-                                    <span class="font-bold text-slate-800 block text-sm">Marketing</span>
-                                    <span class="text-[10px] text-slate-500 block">สาขาวิชาการตลาด</span>
-                                </div>
-                            </label>
-
-                            <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="minor-opt-none">
-                                <input type="radio" name="minor" value="None" required class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
-                                <div>
-                                    <span class="font-bold text-slate-800 block text-sm">None</span>
-                                    <span class="text-[10px] text-slate-500 block">ไม่เลือกวิชาโท</span>
-                                </div>
-                            </label>
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="major-opt-mkt">
+                                    <input type="radio" name="major" value="Marketing" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">Marketing</span>
+                                        <span class="text-[10px] text-slate-500 block">สาขาวิชาการตลาด</span>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
-                        
-                        <!-- ข้อความแจ้งเตือนเมื่อวิชาเอกซ้ำกับวิชาโท -->
-                        <p id="survey-warning" class="hidden text-rose-600 text-xs sm:text-sm font-semibold ml-8 flex items-center gap-1.5 animate-pulse">
-                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-                            <span>วิชาโทต้องไม่ซ้ำกับวิชาเอกหลักที่คุณได้เลือกไว้ กรุณาเปลี่ยนตัวเลือก</span>
-                        </p>
+
+                        <!-- เลือกวิชาโท -->
+                        <div class="space-y-3 pt-4 border-t border-slate-100">
+                            <label class="block text-sm font-bold text-slate-800 flex items-center gap-2">
+                                <span class="bg-emerald-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">2</span>
+                                <span id="survey-minor-label">วิชาโทที่คุณต้องการเลือก (Minor Option)</span>
+                            </label>
+                            <p class="text-xs text-slate-500 ml-7" id="survey-minor-help">วิชาโทที่ท่านเลือกเรียนจะต้องไม่ซ้ำกับวิชาเอกหลักหลักข้างต้น</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 ml-0 sm:ml-7">
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="minor-opt-acc">
+                                    <input type="radio" name="minor" value="Accounting" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">Accounting</span>
+                                        <span class="text-[10px] text-slate-500 block">สาขาวิชาการบัญชี</span>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="minor-opt-fin">
+                                    <input type="radio" name="minor" value="Finance" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">Finance</span>
+                                        <span class="text-[10px] text-slate-500 block">สาขาวิชาการเงิน</span>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="minor-opt-mkt">
+                                    <input type="radio" name="minor" value="Marketing" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">Marketing</span>
+                                        <span class="text-[10px] text-slate-500 block">สาขาวิชาการตลาด</span>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="minor-opt-none">
+                                    <input type="radio" name="minor" value="None" checked class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateMajorMinorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">None</span>
+                                        <span class="text-[10px] text-slate-500 block">ไม่ประสงค์เลือกวิชาโท</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- 2. ส่วนเลือกวิชาเอกคู่ (แสดงเมื่อเลือก Double Major) -->
+                    <div id="survey-double-major-section" class="space-y-6 pt-4 border-t border-slate-100 hidden">
+                        <div class="space-y-3">
+                            <label class="block text-sm font-bold text-slate-800 flex items-center gap-2">
+                                <span class="bg-emerald-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">1</span>
+                                <span id="survey-double-label">สาขาวิชาเอกคู่ที่คุณต้องการเลือก (Double Major Option)</span>
+                            </label>
+                            <p class="text-xs text-slate-500 ml-7" id="survey-double-help">โปรดเลือกชุดคู่สาขาวิชาเรียนร่วมสองด้านที่ท่านประสงค์จะสำเร็จการศึกษา</p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 ml-0 sm:ml-7">
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="double-opt-acc-fin">
+                                    <input type="radio" name="double-major" value="Accounting + Finance" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateDoubleMajorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">Accounting + Finance</span>
+                                        <span class="text-[10px] text-slate-500 block">การบัญชี + การเงิน</span>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="double-opt-mkt-fin">
+                                    <input type="radio" name="double-major" value="Marketing + Finance" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateDoubleMajorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">Marketing + Finance</span>
+                                        <span class="text-[10px] text-slate-500 block">การตลาด + การเงิน</span>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="double-opt-mkt-mgt">
+                                    <input type="radio" name="double-major" value="Marketing + Management" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateDoubleMajorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">Marketing + Management</span>
+                                        <span class="text-[10px] text-slate-500 block">การตลาด + การจัดการ</span>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="double-opt-custom">
+                                    <input type="radio" name="double-major" value="CUSTOM" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateDoubleMajorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm" id="lbl-double-custom">กำหนดคู่สาขาอื่นๆ เอง...</span>
+                                        <span class="text-[10px] text-slate-500 block" id="desc-double-custom">เลือกคู่สาขาวิชาอื่นนอกเหนือจากด้านบน</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- ส่วนกรอกสาขาเอกคู่กรณีเลือกแบบกำหนดเอง (CUSTOM) -->
+                            <div id="survey-double-custom-input-box" class="hidden p-4 bg-slate-100 rounded-xl ml-0 sm:ml-7 border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="custom-major-1" class="block text-xs font-semibold text-slate-600 mb-1" id="lbl-custom-m1">สาขาวิชาเอกหลักตัวที่ 1</label>
+                                    <input type="text" id="custom-major-1" placeholder="เช่น การบัญชี (Accounting)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs" oninput="validateDoubleMajorSelection()">
+                                </div>
+                                <div>
+                                    <label for="custom-major-2" class="block text-xs font-semibold text-slate-600 mb-1" id="lbl-custom-m2">สาขาวิชาเอกหลักตัวที่ 2</label>
+                                    <input type="text" id="custom-major-2" placeholder="เช่น การตลาด (Marketing)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs" oninput="validateDoubleMajorSelection()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- แจ้งเตือนข้อผิดพลาดในการตรวจสอบตัวเลือกเอก/โท -->
+                    <p id="survey-warning" class="hidden text-rose-600 text-xs sm:text-sm font-semibold ml-0 sm:ml-7 flex items-center gap-1.5 animate-pulse">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                        <span id="survey-warning-text">วิชาโทต้องไม่ซ้ำกับวิชาเอกหลักที่คุณได้เลือกไว้ กรุณาเลือกตัวเลือกใหม่</span>
+                    </p>
 
                     <!-- ปุ่มส่งคำตอบแบบสอบถาม -->
-                    <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-100">
-                        <button type="button" onclick="backToSearchPage()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3.5 px-4 rounded-xl text-sm transition-all text-center">
+                    <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-150">
+                        <button type="button" onclick="backToSearchPage()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl text-sm transition-all text-center">
                             ยกเลิก
                         </button>
-                        <button type="submit" id="btn-submit-survey" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                            <i data-lucide="check" class="w-5 h-5"></i>
+                        <button type="submit" id="btn-submit-survey" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i>
                             <span id="btn-send-survey-text">ส่งและบันทึกวิชาที่เลือก</span>
                         </button>
                     </div>
@@ -423,7 +503,7 @@
         // =========================================================================
         // ⚠️ ลิงก์ Web App URL ที่เชื่อมต่อไปยัง Google Sheets ของคุณ ⚠️
         // =========================================================================
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxz4iVYFDRAzR-Mx6C_Gva0xG2a0NnI6GH0KfASuV8smTxP2jCsVAcP2_sforP2D93dSw/exec";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzANZHjEkGga-dy4ZlEqApA4nlHWqCKkUvkpqJ9da-_-AemDwvi1-lC0YxqU2_U40RSkQ/exec";
 
         // สถานะของแอพปัจจุบัน
         let currentLang = 'th';
@@ -431,6 +511,7 @@
         let activeStudentData = null; 
         let base64File = "";          // เก็บไฟล์ Base64 เพื่ออัปโหลด
         let base64FileName = "";      // เก็บชื่อไฟล์
+        let selectedPlanType = "single"; // แผนการเรียนปัจจุบันเริ่มต้นที่ 'single'
 
         // ระบบสลับภาษา (Dictionary for Language Switch)
         const i18n = {
@@ -462,7 +543,7 @@
                 alertEmptyId: "กรุณากรอกเลขประจำตัวประชาชนให้ครบ 13 หลัก",
                 alertEmptyPassport: "กรุณากรอกเลขที่พาสสปอร์ตให้ถูกต้อง",
                 alertNotFound: "ไม่พบข้อมูลนักศึกษาใน Google Sheets กรุณาตรวจสอบเลขที่กรอกใหม่อีกครั้ง หรือติดต่อฝ่ายทะเบียนหลักสูตร BBA",
-                saveSuccess: "บันทึกข้อมูลความถูกต้องสำเร็จ! กรุณากดปุ่มด้านล่างเพื่อเลือกวิชาเอก (Major) และวิชาโท (Minor) ต่อไปค่ะ/ครับ",
+                saveSuccess: "บันทึกข้อมูลความถูกต้องสำเร็จ! กรุณากดปุ่มด้านล่างเพื่อเลือกวิชาเอก (Major) หรือวิชาเอกคู่ (Double Major) ต่อไปค่ะ/ครับ",
                 saveError: "ระบบได้รับข้อมูลเรียบร้อยแล้ว กำลังนำทางไปยังแบบยื่นเรื่องขอแก้ไขข้อมูล...",
                 connectionError: "เกิดข้อผิดพลาดในการติดต่อฐานข้อมูล โปรดลองเปิดเว็บใหม่อีกครั้ง หรือเช็คสิทธิ์การตั้งค่า Deployment ใน Google Sheet",
                 
@@ -482,18 +563,32 @@
                 toastEditSuccess: "ส่งเรื่องขอแก้ไขข้อมูลเรียบร้อยแล้ว! งานทะเบียนจะตรวจสอบและอัปเดตข้อมูลบนระบบโดยเร็ว",
 
                 // หน้าจอสำรวจวิชาเลือก (Survey)
+                surveyPlanLabel: "เลือกประเภทแผนการเรียนที่ต้องการลงทะเบียน",
+                lblPlanSingle: "วิชาเอกเดี่ยว (+วิชาโท) / Single Major",
+                descPlanSingle: "เลือกเรียน 1 สาขาวิชาเอกหลัก และเลือกวิชาโทเพิ่มเติมเสริมทักษะ",
+                lblPlanDouble: "วิชาเอกคู่ / Double Major (วิชาโทจะปิดใช้งาน)",
+                descPlanDouble: "ศึกษา 2 สาขาวิชาเอกหลักควบคู่กันเพื่อทักษะที่หลากหลาย",
                 surveyTitle: "แบบสำรวจวิชาเอกและวิชาโท",
-                surveySubtitle: "โปรดระบุสาขาวิชาเอกและวิชาโทที่ท่านประสงค์จะเลือกเรียน",
+                surveySubtitle: "โปรดเลือกประเภทแผนวิชาและสาขาวิชาที่ท่านประสงค์จะเรียน",
                 surveyStudentNameLabel: "ผู้ให้ข้อมูล:",
                 surveyStudentIdLabel: "รหัสนักศึกษา:",
-                surveyMajorLabel: "วิชาเอกที่คุณต้องการเลือก (Major Option)",
-                surveyMajorHelp: "กรุณาเลือกสาขาวิชาเอกหลักที่ท่านประสงค์จะเรียนเพียง 1 สาขา",
+                surveyMajorLabel: "วิชาเอกหลักที่คุณต้องการเลือก (Major Option)",
                 surveyMinorLabel: "วิชาโทที่คุณต้องการเลือก (Minor Option)",
-                surveyMinorHelp: "กรุณาเลือกวิชาโท หรือเลือก None หากท่านไม่ต้องการเรียนวิชาโท (ไม่สามารถซ้ำกับวิชาเอกได้)",
-                surveyWarning: "วิชาโทต้องไม่ซ้ำกับวิชาเอกหลักที่คุณได้เลือกไว้ กรุณาเลือกตัวเลือกใหม่",
+                surveyMinorHelp: "วิชาโทที่ท่านเลือกเรียนจะต้องไม่ซ้ำกับวิชาเอกหลักด้านบน",
+                surveyDoubleLabel: "สาขาวิชาเอกคู่ที่คุณต้องการเลือก (Double Major Option)",
+                surveyDoubleHelp: "โปรดเลือกชุดคู่สาขาวิชาเรียนร่วมสองด้านที่ท่านประสงค์จะสำเร็จการศึกษา",
+                lblDoubleCustom: "กำหนดคู่สาขาอื่นๆ เอง...",
+                descDoubleCustom: "ระบุคู่สาขาวิชาเรียนสองด้านอื่นที่ต้องการด้วยตัวคุณเอง",
+                lblCustomM1: "สาขาวิชาเอกหลักตัวที่ 1",
+                lblCustomM2: "สาขาวิชาเอกหลักตัวที่ 2",
+                surveyWarningText: "วิชาโทต้องไม่ซ้ำกับวิชาเอกหลักที่คุณได้เลือกไว้ กรุณาเลือกตัวเลือกใหม่",
+                surveyWarningDuplicateDouble: "สาขาวิชาเอกหลักตัวที่ 1 และ 2 จะต้องไม่เป็นวิชาเดียวกัน",
+                surveyWarningEmptyDouble: "กรุณาระบุชื่อสาขาวิชาหลักให้ครบทั้งสองช่อง",
+                surveyWarningNoMajor: "กรุณาเลือกสาขาวิชาเอกหลักอย่างน้อย 1 รายการ",
+                surveyWarningNoDouble: "กรุณาเลือกรูปแบบวิชาเอกคู่ หรือกำหนดสาขาอ้างอิงให้ครบถ้วน",
                 btnSendSurveyText: "ส่งและบันทึกวิชาที่เลือก",
-                btnSendingSurveyText: "กำลังบันทึกวิชาเอก/โท ลงใน Google Sheets...",
-                toastSurveySuccess: "บันทึกการเลือกวิชาเอก (Major) และวิชาโท (Minor) สำเร็จเรียบร้อยแล้ว ขอบคุณสำหรับการกรอกข้อมูลค่ะ/ครับ"
+                btnSendingSurveyText: "กำลังบันทึกแผนวิชาเอก/โท ลงใน Google Sheets...",
+                toastSurveySuccess: "บันทึกการเลือกแผนการเรียนวิชาหลัก BBA สำเร็จเรียบร้อยแล้ว ขอบคุณสำหรับการกรอกข้อมูลค่ะ/ครับ"
             },
             en: {
                 headerSub: "BBA Online Student Information System",
@@ -523,7 +618,7 @@
                 alertEmptyId: "Please enter your 13-digit Thai National ID.",
                 alertEmptyPassport: "Please enter a valid Passport Number.",
                 alertNotFound: "Student record not found in Google Sheets. Please verify your identification number or contact the BBA office.",
-                saveSuccess: "Profile confirmed! Please click the button below to specify your Major and Minor selection.",
+                saveSuccess: "Profile confirmed! Please click the button below to specify your Major or Double Major selection.",
                 saveError: "Profile marked as incorrect. Navigating you to the edit submission form...",
                 connectionError: "Failed to connect to database. Please refresh or verify the Deployment settings on Google Sheets.",
                 
@@ -543,18 +638,32 @@
                 toastEditSuccess: "Correction request submitted successfully! Registry staff will review and update your record shortly.",
 
                 // หน้าจอสำรวจวิชาเลือก (Survey EN)
-                surveyTitle: "Major & Minor Track Survey",
-                surveySubtitle: "Please specify the academic major and minor tracks you wish to pursue",
+                surveyPlanLabel: "Select Your Preferred Study Track Option",
+                lblPlanSingle: "Single Major (+Minor Track)",
+                descPlanSingle: "Focus on 1 major concentration area and optional minor concentration.",
+                lblPlanDouble: "Double Major Track (Minor Track Disabled)",
+                descPlanDouble: "Intensively focus on 2 main concentrations to double your proficiency.",
+                surveyTitle: "Major & Double Major Track Survey",
+                surveySubtitle: "Please specify the academic major or double major tracks you wish to pursue",
                 surveyStudentNameLabel: "Student Name:",
                 surveyStudentIdLabel: "Student ID:",
-                surveyMajorLabel: "Select Your Intended Major Track",
-                surveyMajorHelp: "Please select one major track as your primary focus",
-                surveyMinorLabel: "Select Your Intended Minor Track",
-                surveyMinorHelp: "Please select one minor track or select 'None' if you do not want a minor (must differ from major)",
-                surveyWarning: "Your Minor track cannot be the same as your primary Major track. Please choose a different option.",
+                surveyMajorLabel: "Select Your Intended Major Concentration Track",
+                surveyMinorLabel: "Select Your Intended Minor Concentration Track",
+                surveyMinorHelp: "Your selected minor must differ from your chosen primary major above.",
+                surveyDoubleLabel: "Select Your Intended Double Major Combination",
+                surveyDoubleHelp: "Choose standard double major tracks or designate custom major combinations below.",
+                lblDoubleCustom: "Customize My Double Major Tracks...",
+                descDoubleCustom: "Designate and specify two major tracks by entering custom values.",
+                lblCustomM1: "Primary Major Focus 1",
+                lblCustomM2: "Primary Major Focus 2",
+                surveyWarningText: "Your selected Minor track cannot be the same as your primary Major track.",
+                surveyWarningDuplicateDouble: "First Major track and Second Major track cannot be the same.",
+                surveyWarningEmptyDouble: "Please fill out both custom major track input fields.",
+                surveyWarningNoMajor: "Please select at least one primary major track.",
+                surveyWarningNoDouble: "Please select a double major preset or input custom tracks.",
                 btnSendSurveyText: "Submit Track Choices",
                 btnSendingSurveyText: "Saving major and minor to Google Sheets...",
-                toastSurveySuccess: "Your Major (Major) and Minor (Minor) tracks have been successfully recorded. Thank you!"
+                toastSurveySuccess: "Your BBA Major / Double Major tracks have been successfully recorded. Thank you!"
             }
         };
 
@@ -645,15 +754,24 @@
             }
 
             // แปลหน้าจอแบบสำรวจ (Survey)
+            document.getElementById('survey-plan-label').innerText = i18n[lang].surveyPlanLabel;
+            document.getElementById('lbl-plan-single').innerText = i18n[lang].lblPlanSingle;
+            document.getElementById('desc-plan-single').innerText = i18n[lang].descPlanSingle;
+            document.getElementById('lbl-plan-double').innerText = i18n[lang].lblPlanDouble;
+            document.getElementById('desc-plan-double').innerText = i18n[lang].descPlanDouble;
             document.getElementById('survey-title').innerText = i18n[lang].surveyTitle;
             document.getElementById('survey-subtitle').innerText = i18n[lang].surveySubtitle;
             document.getElementById('survey-student-name-label').innerText = i18n[lang].surveyStudentNameLabel;
             document.getElementById('survey-student-id-label').innerText = i18n[lang].surveyStudentIdLabel;
             document.getElementById('survey-major-label').innerText = i18n[lang].surveyMajorLabel;
-            document.getElementById('survey-major-help').innerText = i18n[lang].surveyMajorHelp;
             document.getElementById('survey-minor-label').innerText = i18n[lang].surveyMinorLabel;
             document.getElementById('survey-minor-help').innerText = i18n[lang].surveyMinorHelp;
-            document.getElementById('survey-warning').querySelector('span').innerText = i18n[lang].surveyWarning;
+            document.getElementById('survey-double-label').innerText = i18n[lang].surveyDoubleLabel;
+            document.getElementById('survey-double-help').innerText = i18n[lang].surveyDoubleHelp;
+            document.getElementById('lbl-double-custom').innerText = i18n[lang].lblDoubleCustom;
+            document.getElementById('desc-double-custom').innerText = i18n[lang].descDoubleCustom;
+            document.getElementById('lbl-custom-m1').innerText = i18n[lang].lblCustomM1;
+            document.getElementById('lbl-custom-m2').innerText = i18n[lang].lblCustomM2;
             
             const sendSurveyBtn = document.getElementById('btn-submit-survey');
             if (sendSurveyBtn.disabled) {
@@ -661,6 +779,8 @@
             } else {
                 document.getElementById('btn-send-survey-text').innerText = i18n[lang].btnSendSurveyText;
             }
+
+            validateSurveyPlanTypeAndInputs();
 
             lucide.createIcons();
 
@@ -693,6 +813,161 @@
                 inputThaiGroup.classList.add('hidden');
             }
             lucide.createIcons();
+        }
+
+        // ฟังก์ชันสลับประเภทหน้าต่างแบบสำรวจ (Single Major / Double Major)
+        function toggleSurveyPlanType(type) {
+            selectedPlanType = type;
+            const singleSection = document.getElementById('survey-single-major-section');
+            const doubleSection = document.getElementById('survey-double-major-section');
+            const warningBox = document.getElementById('survey-warning');
+
+            // รีเซ็ตการแจ้งเตือน
+            warningBox.classList.add('hidden');
+
+            // ปรับแต่งสีพื้นขอบตัวเลือกที่ถูกเลือก
+            const singleCard = document.getElementById('plan-opt-single');
+            const doubleCard = document.getElementById('plan-opt-double');
+
+            if (type === 'single') {
+                singleSection.classList.remove('hidden');
+                doubleSection.classList.add('hidden');
+                singleCard.className = "flex items-start gap-3 p-4 border-2 border-emerald-500 bg-emerald-50/10 rounded-xl transition-all cursor-pointer";
+                doubleCard.className = "flex items-start gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer";
+                
+                // ล้างค่าเอกคู่
+                const doubleMajorRadios = document.getElementsByName('double-major');
+                for (let radio of doubleMajorRadios) radio.checked = false;
+                document.getElementById('survey-double-custom-input-box').classList.add('hidden');
+            } else {
+                singleSection.classList.add('hidden');
+                doubleSection.classList.remove('hidden');
+                doubleCard.className = "flex items-start gap-3 p-4 border-2 border-emerald-500 bg-emerald-50/10 rounded-xl transition-all cursor-pointer";
+                singleCard.className = "flex items-start gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer";
+
+                // ล้างค่าเอกเดี่ยว/วิชาโท
+                const majorRadios = document.getElementsByName('major');
+                for (let radio of majorRadios) radio.checked = false;
+                document.getElementById('minor-opt-none').querySelector('input').checked = true;
+            }
+
+            validateSurveyPlanTypeAndInputs();
+            lucide.createIcons();
+        }
+
+        // ฟังก์ชันหลักที่รวบรวมเงื่อนไขและการเช็คความถูกต้องของตัวเลือกทั้งหมด
+        function validateSurveyPlanTypeAndInputs() {
+            const warningBox = document.getElementById('survey-warning');
+            const warningText = document.getElementById('survey-warning-text');
+            const submitBtn = document.getElementById('btn-submit-survey');
+
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            warningBox.classList.add('hidden');
+
+            resetSurveyVisualStyles();
+
+            if (selectedPlanType === 'single') {
+                // ตรวจสอบเงื่อนไขวิชาเอกเดี่ยว
+                const selectedMajor = document.querySelector('input[name="major"]:checked')?.value;
+                const selectedMinor = document.querySelector('input[name="minor"]:checked')?.value;
+
+                // ไฮไลท์
+                if (selectedMajor) {
+                    const majorCard = document.getElementById(`major-opt-${getShortCode(selectedMajor)}`);
+                    if (majorCard) majorCard.className = "flex items-center gap-3 p-4 border-2 border-emerald-500 bg-emerald-50/20 rounded-xl transition-all cursor-pointer";
+                }
+                if (selectedMinor) {
+                    const minorCard = document.getElementById(`minor-opt-${getShortCode(selectedMinor)}`);
+                    if (minorCard) minorCard.className = "flex items-center gap-3 p-4 border-2 border-emerald-500 bg-emerald-50/20 rounded-xl transition-all cursor-pointer";
+                }
+
+                if (selectedMajor && selectedMinor && selectedMinor !== "None") {
+                    if (selectedMajor === selectedMinor) {
+                        warningText.innerText = i18n[currentLang].surveyWarningText;
+                        warningBox.classList.remove('hidden');
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        
+                        const minorCard = document.getElementById(`minor-opt-${getShortCode(selectedMinor)}`);
+                        if (minorCard) minorCard.className = "flex items-center gap-3 p-4 border-2 border-rose-500 bg-rose-50/20 rounded-xl transition-all cursor-pointer";
+                        return false;
+                    }
+                }
+            } else {
+                // ตรวจสอบเงื่อนไขวิชาเอกคู่ (Double Major)
+                const selectedDoubleMajor = document.querySelector('input[name="double-major"]:checked')?.value;
+                const customBox = document.getElementById('survey-double-custom-input-box');
+
+                if (selectedDoubleMajor) {
+                    const doubleCard = document.getElementById(`double-opt-${getDoubleShortCode(selectedDoubleMajor)}`);
+                    if (doubleCard) doubleCard.className = "flex items-center gap-3 p-4 border-2 border-emerald-500 bg-emerald-50/20 rounded-xl transition-all cursor-pointer";
+                }
+
+                if (selectedDoubleMajor === "CUSTOM") {
+                    customBox.classList.remove('hidden');
+                    const c1 = document.getElementById('custom-major-1').value.trim();
+                    const c2 = document.getElementById('custom-major-2').value.trim();
+
+                    if (c1 && c2) {
+                        if (c1.toLowerCase() === c2.toLowerCase()) {
+                            warningText.innerText = i18n[currentLang].surveyWarningDuplicateDouble;
+                            warningBox.classList.remove('hidden');
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                            return false;
+                        }
+                    }
+                } else {
+                    customBox.classList.add('hidden');
+                }
+            }
+            return true;
+        }
+
+        // ผูกฟังก์ชันเข้ากับการเปลี่ยนสถานะวิทยุ
+        function validateMajorMinorSelection() {
+            validateSurveyPlanTypeAndInputs();
+        }
+        function validateDoubleMajorSelection() {
+            validateSurveyPlanTypeAndInputs();
+        }
+
+        // คืนค่า short-code สำหรับระบุ id ของวิชาเอก
+        function getShortCode(name) {
+            if (name === "Accounting") return "acc";
+            if (name === "Finance") return "fin";
+            if (name === "Marketing") return "mkt";
+            return "none";
+        }
+
+        // คืนค่า short-code สำหรับระบุ id ของแผนเอกคู่
+        function getDoubleShortCode(name) {
+            if (name === "Accounting + Finance") return "acc-fin";
+            if (name === "Marketing + Finance") return "mkt-fin";
+            if (name === "Marketing + Management") return "mkt-mgt";
+            return "custom";
+        }
+
+        // รีเซ็ตการตกแต่งสไตล์ของกล่องวิทยุเลือกทั้งหมด
+        function resetSurveyVisualStyles() {
+            const list = ["acc", "fin", "mkt"];
+            list.forEach(code => {
+                const majorCard = document.getElementById(`major-opt-${code}`);
+                if (majorCard) majorCard.className = "flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer";
+            });
+
+            const listMinor = ["acc", "fin", "mkt", "none"];
+            listMinor.forEach(code => {
+                const minorCard = document.getElementById(`minor-opt-${code}`);
+                if (minorCard) minorCard.className = "flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer";
+            });
+
+            const listDouble = ["acc-fin", "mkt-fin", "mkt-mgt", "custom"];
+            listDouble.forEach(code => {
+                const doubleCard = document.getElementById(`double-opt-${code}`);
+                if (doubleCard) doubleCard.className = "flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer";
+            });
         }
 
         // ฟังก์ชันค้นหาข้อมูลตรงจาก Google Sheets (ผ่าน Apps Script)
@@ -881,8 +1156,9 @@
             document.getElementById('survey-warning').classList.add('hidden');
             document.getElementById('btn-submit-survey').disabled = false;
 
-            // รีเซ็ตกรอบการออกแบบตัวเลือก
-            resetSurveyVisualStyles();
+            // ตั้งค่าแผนการเรียนกลับไปเริ่มต้นที่วิชาเอกเดี่ยว
+            toggleSurveyPlanType('single');
+            document.getElementById('plan-opt-single').querySelector('input').checked = true;
 
             // สลับเพจหน้าจอ
             document.getElementById('page-search').classList.add('hidden');
@@ -905,82 +1181,50 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // ฟังก์ชันตรวจเช็คไม่ให้วิชาโท (Minor) ซ้ำกับวิชาเอก (Major)
-        function validateMajorMinorSelection() {
-            const selectedMajor = document.querySelector('input[name="major"]:checked')?.value;
-            const selectedMinor = document.querySelector('input[name="minor"]:checked')?.value;
-            
-            const warningBox = document.getElementById('survey-warning');
-            const submitBtn = document.getElementById('btn-submit-survey');
-
-            // รีเซ็ตสไตล์ความสวยงามของตัวเลือกทั้งหมดก่อน
-            resetSurveyVisualStyles();
-
-            // ไฮไลต์กล่องที่เลือกเป็น Major (Border สีเขียว)
-            if (selectedMajor) {
-                const majorCard = document.getElementById(`major-opt-${getShortCode(selectedMajor)}`);
-                if (majorCard) majorCard.className = "flex items-center gap-3 p-4 border-2 border-emerald-500 bg-emerald-50/20 rounded-xl transition-all cursor-pointer";
-            }
-
-            // ไฮไลต์กล่องที่เลือกเป็น Minor (Border สีเขียว)
-            if (selectedMinor) {
-                const minorCard = document.getElementById(`minor-opt-${getShortCode(selectedMinor)}`);
-                if (minorCard) minorCard.className = "flex items-center gap-3 p-4 border-2 border-emerald-500 bg-emerald-50/20 rounded-xl transition-all cursor-pointer";
-            }
-
-            if (selectedMajor && selectedMinor && selectedMinor !== "None") {
-                if (selectedMajor === selectedMinor) {
-                    // หากเลือกวิชาเอกซ้ำกับวิชาโท ให้แสดงแจ้งเตือนและล็อคปุ่มส่ง
-                    warningBox.classList.remove('hidden');
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    
-                    // ปรับแต่งสีขอบช่องที่ผิดพลาดเป็นสีแดงเตือนภัย
-                    const minorCard = document.getElementById(`minor-opt-${getShortCode(selectedMinor)}`);
-                    if (minorCard) {
-                        minorCard.className = "flex items-center gap-3 p-4 border-2 border-rose-500 bg-rose-50/20 rounded-xl transition-all cursor-pointer";
-                    }
-                    return false;
-                }
-            }
-
-            // หากผ่านเกณฑ์ปกติ
-            warningBox.classList.add('hidden');
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            return true;
-        }
-
-        function getShortCode(name) {
-            if (name === "Accounting") return "acc";
-            if (name === "Finance") return "fin";
-            if (name === "Marketing") return "mkt";
-            return "none";
-        }
-
-        function resetSurveyVisualStyles() {
-            const list = ["acc", "fin", "mkt"];
-            list.forEach(code => {
-                const majorCard = document.getElementById(`major-opt-${code}`);
-                if (majorCard) majorCard.className = "flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer";
-            });
-
-            const listMinor = ["acc", "fin", "mkt", "none"];
-            listMinor.forEach(code => {
-                const minorCard = document.getElementById(`minor-opt-${code}`);
-                if (minorCard) minorCard.className = "flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer";
-            });
-        }
-
-        // ส่งข้อมูลบันทึกแบบสอบถามวิชาเอกวิชาโทขึ้นสู่ Google Sheets
+        // ส่งข้อมูลบันทึกแบบสอบถามวิชาเอกวิชาโท หรือ วิชาเอกคู่ ขึ้นสู่ Google Sheets แผ่นแรก
         async function submitSurveyForm(event) {
             event.preventDefault();
 
             if (!activeStudentData) return;
-            if (!validateMajorMinorSelection()) return;
+            if (!validateSurveyPlanTypeAndInputs()) return;
 
-            const selectedMajor = document.querySelector('input[name="major"]:checked').value;
-            const selectedMinor = document.querySelector('input[name="minor"]:checked').value;
+            let finalMajorValue = "";
+            let finalMinorValue = "";
+
+            if (selectedPlanType === 'single') {
+                const selectedMajor = document.querySelector('input[name="major"]:checked')?.value;
+                const selectedMinor = document.querySelector('input[name="minor"]:checked')?.value;
+
+                if (!selectedMajor) {
+                    alert(i18n[currentLang].surveyWarningNoMajor);
+                    return;
+                }
+
+                finalMajorValue = selectedMajor;
+                finalMinorValue = selectedMinor || "None";
+            } else {
+                const selectedDouble = document.querySelector('input[name="double-major"]:checked')?.value;
+
+                if (!selectedDouble) {
+                    alert(i18n[currentLang].surveyWarningNoDouble);
+                    return;
+                }
+
+                if (selectedDouble === "CUSTOM") {
+                    const c1 = document.getElementById('custom-major-1').value.trim();
+                    const c2 = document.getElementById('custom-major-2').value.trim();
+
+                    if (!c1 || !c2) {
+                        alert(i18n[currentLang].surveyWarningEmptyDouble);
+                        return;
+                    }
+                    finalMajorValue = `Double Major: ${c1} + ${c2}`;
+                } else {
+                    finalMajorValue = `Double Major: ${selectedDouble}`;
+                }
+
+                finalMinorValue = "None (Double Major Plan)"; // วิชาโทจะถูกล็อกค่าไว้
+            }
 
             const sendSurveyBtn = document.getElementById('btn-submit-survey');
             const originalText = sendSurveyBtn.innerHTML;
@@ -992,13 +1236,13 @@
                 const payload = {
                     action: "submitSurvey",
                     id: activeStudentData.id,
-                    major: selectedMajor,
-                    minor: selectedMinor
+                    major: finalMajorValue,
+                    minor: finalMinorValue
                 };
 
                 const response = await fetch(postUrl, {
                     method: 'POST',
-                    mode: 'no-cors', // ใช้ no-cors สำหรับส่งข้อมูลทางเดียวแบบรวดเร็ว
+                    mode: 'no-cors', // ใช้ no-cors เพื่อส่งผ่านการบล็อก CORS ของ Google Sheets POST
                     headers: {
                         'Content-Type': 'application/json'
                     },

@@ -436,6 +436,14 @@
                                         <span class="text-[10px] text-slate-500 block">การตลาด + การเงิน</span>
                                     </div>
                                 </label>
+                                
+                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="double-opt-mkt-acc">
+                                    <input type="radio" name="double-major" value="Marketing + Accounting" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateDoubleMajorSelection()">
+                                    <div>
+                                        <span class="font-bold text-slate-800 block text-sm">Marketing + Accounting</span>
+                                        <span class="text-[10px] text-slate-500 block">การตลาด + การบัญชี</span>
+                                    </div>
+                                </label>
 
 
                                 <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="double-opt-custom">
@@ -470,7 +478,7 @@
                     <!-- ปุ่มส่งคำตอบแบบสอบถาม -->
                     <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-150">
                         <button type="button" onclick="backToSearchPage()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl text-sm transition-all text-center">
-                            ยกเลิก
+                            Cancel
                         </button>
                         <button type="submit" id="btn-submit-survey" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                             <i data-lucide="send" class="w-4 h-4"></i>
@@ -486,7 +494,7 @@
     <!-- ส่วนท้ายของเว็บไซต์ (Footer) -->
     <footer class="bg-slate-900 text-slate-400 py-6 text-xs text-center border-t border-slate-800">
         <div class="max-w-6xl mx-auto px-4 space-y-2">
-            <p>© 2026 BBA Thammasat - Office of Academic Affairs</p>
+            <p>© 2026 BBA Thammasat</p>
             <p class="text-slate-500" id="footer-pdpa">ข้อมูลนี้เป็นข้อมูลส่วนบุคคลที่ได้รับการคุ้มครองตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</p>
         </div>
     </footer>
@@ -510,9 +518,9 @@
         const i18n = {
             th: {
                 headerSub: "ระบบบริการข้อมูลนักศึกษาออนไลน์ | BBA Student Portal",
-                statusText: "เชื่อมต่อฐานข้อมูล Google Sheets สำเร็จ",
+                statusText: "เชื่อมต่อฐานข้อมูลสำเร็จ",
                 instructionTitle: "คำชี้แจงในการตรวจสอบข้อมูล",
-                instructionDesc: "กรุณากรอกเลขประจำตัวประชาชน 13 หลัก (สำหรับนักศึกษาสัญชาติไทย) หรือเลขที่หนังสือเดินทาง / Passport (สำหรับนักศึกษาต่างชาติ) เพื่อเข้าสู่ระบบตรวจสอบความถูกต้องของข้อมูลส่วนตัว หากพบข้อมูลไม่ถูกต้อง กรุณาติดต่อห้องทะเบียน BBA",
+                instructionDesc: "กรุณากรอกเลขประจำตัวประชาชน 13 หลัก (สำหรับนักศึกษาสัญชาติไทย) หรือเลขที่หนังสือเดินทาง / Passport (สำหรับนักศึกษาต่างชาติ) เพื่อเข้าสู่ระบบตรวจสอบความถูกต้องของข้อมูลส่วนตัว",
                 searchTitle: "ระบุตัวตนเพื่อตรวจสอบข้อมูล",
                 tabThai: "🇹🇭 นักศึกษาสัญชาติไทย",
                 tabInter: "🌐 International Student",
@@ -521,7 +529,7 @@
                 labelPassport: "เลขที่หนังสือเดินทาง (Passport Number)",
                 helpPassport: "กรอกรหัสตัวอักษรภาษาอังกฤษและตัวเลขตามปรากฏในพาสปอร์ต",
                 btnSearchText: "ค้นหาข้อมูลส่วนตัว",
-                btnSearchingText: "กำลังค้นหาข้อมูลใน Google Sheets...",
+                btnSearchingText: "กำลังค้นหาข้อมูล",
                 errorTitle: "ไม่พบข้อมูลในระบบ",
                 resultTitle: "พบข้อมูลประวัตินักศึกษา",
                 resultSubtitle: "กรุณาตรวจสอบความถูกต้องของข้อมูลทุกช่องด้านล่าง",
@@ -580,12 +588,12 @@
                 surveyWarningNoMajor: "กรุณาเลือกสาขาวิชาเอกหลักอย่างน้อย 1 รายการ",
                 surveyWarningNoDouble: "กรุณาเลือกรูปแบบวิชาเอกคู่ หรือกำหนดสาขาอ้างอิงให้ครบถ้วน",
                 btnSendSurveyText: "ส่งและบันทึกวิชาที่เลือก",
-                btnSendingSurveyText: "กำลังบันทึกแผนวิชาเอก/โท ลงใน Google Sheets...",
+                btnSendingSurveyText: "กำลังบันทึกแผนวิชาเอก/โท",
                 toastSurveySuccess: "บันทึกการเลือกแผนการเรียนวิชาหลัก BBA สำเร็จเรียบร้อยแล้ว ขอบคุณสำหรับการกรอกข้อมูลค่ะ/ครับ"
             },
             en: {
                 headerSub: "BBA Online Student Information System",
-                statusText: "Connected to Google Sheets Database",
+                statusText: "Connected to Database",
                 instructionTitle: "Instructions for Verification",
                 instructionDesc: "Please enter your 13-digit National ID card number (for Thai nationals) or Passport Number (for international students) to access and verify your personal information. If any information is incorrect, please contact the BBA office.",
                 searchTitle: "Identify Yourself to Verify Data",
@@ -613,7 +621,7 @@
                 alertNotFound: "Student record not found in Google Sheets. Please verify your identification number or contact the BBA office.",
                 saveSuccess: "Profile confirmed! Please click the button below to specify your Major or Double Major selection.",
                 saveError: "Profile marked as incorrect. Navigating you to the edit submission form...",
-                connectionError: "Failed to connect to database. Please refresh or verify the Deployment settings on Google Sheets.",
+                connectionError: "Failed to connect to database. Please refresh or verify the Deployment settings.",
                 
                 // คำแปลเพิ่มเติมสำหรับหน้าต่างยื่นเรื่องแก้ไข (EN)
                 formEditTitle: "Submit Profile Correction Form",
@@ -655,7 +663,7 @@
                 surveyWarningNoMajor: "Please select at least one primary major track.",
                 surveyWarningNoDouble: "Please select a double major preset or input custom tracks.",
                 btnSendSurveyText: "Submit Track Choices",
-                btnSendingSurveyText: "Saving major and minor to Google Sheets...",
+                btnSendingSurveyText: "Saving major and minor",
                 toastSurveySuccess: "Your BBA Major / Double Major tracks have been successfully recorded. Thank you!"
             }
         };

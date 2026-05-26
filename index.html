@@ -207,11 +207,11 @@
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <h3 class="text-lg font-bold text-emerald-900" id="survey-action-title">ขั้นตอนถัดไป: ทำแบบสำรวจแผนสาขาวิชาเรียน(ไม่เป็นทางการ)</h3>
-                        <p class="text-sm text-emerald-700" id="survey-action-desc">ข้อมูลของท่านได้รับการยืนยันเรียบร้อยแล้ว กรุณาทำแบบสำรวจเลือกสาขาวิชาเอก (Major) หรือวิชาเอกคู่ (Double Major) และวิชาโท (Minor)</p>
+                        <h3 class="text-lg font-bold text-emerald-900" id="survey-action-title">Next Step: Do the Major/Minor selection survey(Unofficial)</h3>
+                        <p class="text-sm text-emerald-700" id="survey-action-desc">Your information has been saved, Please do the Major selection survey</p>
                     </div>
                     <button onclick="navigateToSurveyPage()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md inline-flex items-center gap-2 text-base">
-                        <span>ทำแบบสำรวจวิชาเลือก</span>
+                        <span>Do the survey</span>
                         <i data-lucide="arrow-right" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -437,13 +437,6 @@
                                     </div>
                                 </label>
 
-                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="double-opt-mkt-mgt">
-                                    <input type="radio" name="double-major" value="Marketing + Management" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateDoubleMajorSelection()">
-                                    <div>
-                                        <span class="font-bold text-slate-800 block text-sm">Marketing + Management</span>
-                                        <span class="text-[10px] text-slate-500 block">การตลาด + การจัดการ</span>
-                                    </div>
-                                </label>
 
                                 <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all cursor-pointer" id="double-opt-custom">
                                     <input type="radio" name="double-major" value="CUSTOM" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300" onchange="validateDoubleMajorSelection()">

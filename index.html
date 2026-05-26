@@ -66,7 +66,7 @@
                     <div>
                         <h3 class="font-semibold text-red-900 text-sm sm:text-base" id="instruction-title">คำชี้แจงในการตรวจสอบข้อมูล</h3>
                         <p class="text-xs sm:text-sm text-red-700 mt-1" id="instruction-desc">
-                            กรุณากรอกเลขประจำตัวประชาชน 13 หลัก (สำหรับนักศึกษาสัญชาติไทย) หรือเลขที่หนังสือเดินทาง / Passport (สำหรับนักศึกษาต่างชาติ) เพื่อเข้าสู่ระบบตรวจสอบความถูกต้องของข้อมูลส่วนตัว หากพบข้อมูลไม่ถูกต้อง กรุณาติดต่อห้องทะเบียน BBA
+                            กรุณากรอกเลขประจำตัวประชาชน 13 หลัก (สำหรับนักศึกษาสัญชาติไทย) หรือเลขที่หนังสือเดินทาง / Passport (สำหรับนักศึกษาต่างชาติ) เพื่อเข้าสู่ระบบตรวจสอบความถูกต้องของข้อมูลส่วนตัว
                         </p>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
                         🇹🇭 นักศึกษาสัญชาติไทย
                     </button>
                     <button type="button" id="tab-inter" onclick="switchTab('inter')" class="py-2.5 px-4 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-800">
-                        🌐 International Student
+                        🌐 Non-Thai Student
                     </button>
                 </div>
 
@@ -127,7 +127,7 @@
                 <i data-lucide="alert-circle" class="w-6 h-6 text-rose-600 shrink-0"></i>
                 <div>
                     <h4 class="font-bold text-sm sm:text-base" id="error-title">ไม่พบข้อมูลในระบบ</h4>
-                    <p id="error-text" class="text-xs sm:text-sm mt-0.5">กรุณาตรวจสอบเลขที่กรอกอีกครั้ง หรือติดต่อฝ่ายทะเบียน</p>
+                    <p id="error-text" class="text-xs sm:text-sm mt-0.5">กรุณาตรวจสอบเลขที่กรอกอีกครั้ง</p>
                 </div>
             </div>
 
@@ -207,7 +207,7 @@
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <h3 class="text-lg font-bold text-emerald-900" id="survey-action-title">ขั้นตอนถัดไป: เลือกแผนสาขาวิชาเรียน</h3>
+                        <h3 class="text-lg font-bold text-emerald-900" id="survey-action-title">ขั้นตอนถัดไป: ทำแบบสำรวจแผนสาขาวิชาเรียน(ไม่เป็นทางการ)</h3>
                         <p class="text-sm text-emerald-700" id="survey-action-desc">ข้อมูลของท่านได้รับการยืนยันเรียบร้อยแล้ว กรุณาทำแบบสำรวจเลือกสาขาวิชาเอก (Major) หรือวิชาเอกคู่ (Double Major) และวิชาโท (Minor)</p>
                     </div>
                     <button onclick="navigateToSurveyPage()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md inline-flex items-center gap-2 text-base">
@@ -227,7 +227,7 @@
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
                     </button>
                     <div>
-                        <h2 class="text-xl font-bold text-slate-850" id="form-edit-title">ยื่นคำร้องขอแก้ไขข้อมูลส่วนตัว</h2>
+                        <h2 class="text-xl font-bold text-slate-850" id="form-edit-title">ขอแก้ไขข้อมูลส่วนตัว</h2>
                         <p class="text-xs text-slate-500" id="form-edit-subtitle">กรอกข้อมูลส่วนที่ถูกต้องเพื่อความรวดเร็วในการประสานงาน</p>
                     </div>
                 </div>
@@ -262,7 +262,7 @@
                         <label class="block text-sm font-semibold text-slate-700 flex items-center gap-1.5" id="lbl-upload-file">
                             4. อัปโหลดสำเนาหลักฐานยืนยันตัวตน <span class="text-red-500 font-bold">*</span>
                         </label>
-                        <p class="text-xs text-slate-500" id="help-upload-file">กรุณาแนบภาพถ่ายบัตรประชาชน (สำหรับคนไทย) หรือหน้าหนังสือเดินทาง (สำหรับต่างชาติ) เพื่อเป็นหลักฐานให้งานทะเบียนตรวจสอบ</p>
+                        <p class="text-xs text-slate-500" id="help-upload-file">กรุณาแนบภาพถ่ายบัตรประชาชน (สำหรับคนไทย) หรือหน้าหนังสือเดินทาง (สำหรับต่างชาติ) เพื่อเป็นหลักฐาน</p>
                         <div class="mt-2 border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition-all cursor-pointer relative" id="drop-zone">
                             <input type="file" id="evidence-file" accept="image/*, application/pdf" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleFileSelect(event)">
                             <div class="space-y-1" id="upload-preview">
@@ -319,7 +319,7 @@
                                 <input type="radio" name="survey-plan-type" value="single" checked class="mt-1 w-4 h-4 text-emerald-600 focus:ring-emerald-500" onchange="toggleSurveyPlanType('single')">
                                 <div>
                                     <span class="font-bold text-slate-800 block text-sm" id="lbl-plan-single">วิชาเอกเดี่ยว (+วิชาโท) / Single Major</span>
-                                    <span class="text-xs text-slate-500 block mt-0.5" id="desc-plan-single">เลือก 1 วิชาเอก และสามารถเลือกวิชาโทเพื่อความรู้เพิ่มเติมได้</span>
+                                    <span class="text-xs text-slate-500 block mt-0.5" id="desc-plan-single">เลือก 1 วิชาเอก และสามารถเลือกวิชาโทเพิ่มเติมได้</span>
                                 </div>
                             </label>
 
